@@ -178,13 +178,25 @@ export default function App() {
               <h3>Script</h3>
               <p className="result-script">{result.script}</p>
 
-              <h3>Scenes</h3>
+              <h3>3-Beat Storyboard</h3>
               <ul className="scene-list">
                 {result.scenes.map((s) => (
                   <li key={s.index} className="scene-item">
                     <div className="scene-header">
-                      <span className="scene-caption">{s.caption}</span>
-                      <span className="scene-duration">{s.duration}s</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        {s.beat_role && (
+                          <span style={{ background: "rgba(129, 140, 248, 0.2)", color: "#c7d2fe", border: "1px solid rgba(129, 140, 248, 0.4)", padding: "1px 6px", borderRadius: "4px", fontSize: "11px", fontWeight: "700" }}>
+                            {s.beat_role.replace("_", " ")}
+                          </span>
+                        )}
+                        <span className="scene-caption">{s.caption}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        {s.category_tag && (
+                          <span style={{ color: "#818cf8", fontSize: "11.5px", fontWeight: "600" }}>[ {s.category_tag} ]</span>
+                        )}
+                        <span className="scene-duration">{s.duration}s</span>
+                      </div>
                     </div>
                     {s.camera_direction && (
                       <div className="scene-camera">🎥 {s.camera_direction}</div>

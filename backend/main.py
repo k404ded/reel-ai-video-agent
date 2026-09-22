@@ -104,6 +104,7 @@ def _serialize(result):
         "description": result.description,
         "style": getattr(result, "style", "cinematic explainer"),
         "visual_direction": getattr(result, "visual_direction", ""),
+        "shared_visual_anchor": getattr(result, "shared_visual_anchor", {}),
         "script": result.script,
         "scenes": result.scenes,
         "video_url": f"/output/{rel_video_path}",

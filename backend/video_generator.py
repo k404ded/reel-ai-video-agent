@@ -54,6 +54,7 @@ def _get_motion_filter(scene_index: int, duration: float, camera_direction: str 
 
 def _build_scene_clip(scene, clip_path: str):
     caption = _escape_drawtext(scene.caption or "").strip()
+    category_tag = _escape_drawtext(getattr(scene, "category_tag", "") or "").strip().upper()
 
     if os.path.exists("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"):
         font_spec = "fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
@@ -64,23 +65,33 @@ def _build_scene_clip(scene, clip_path: str):
     camera_dir = getattr(scene, "camera_direction", "")
     motion_vf = _get_motion_filter(scene.index, scene.duration, camera_dir)
 
-    # Professional lower-third caption styling
-    drawtext_filter = ""
+    # Professional two-tier lower-third typography
+    drawtext_filters = []
+    if category_tag:
+        drawtext_filters.append(
+            f"drawtext={font_spec}:text='[ {category_tag} ]':"
+            f"fontcolor=0x818CF8:fontsize=22:"
+            f"x=(w-text_w)/2:y=h-205"
+        )
     if caption:
-        # Capitalize punchy captions for explainer elegance
-        display_caption = caption.upper() if len(caption) <= 30 else caption
-        drawtext_filter = (
+        display_caption = caption.upper() if len(caption) <= 32 else caption
+        drawtext_filters.append(
             f"drawtext={font_spec}:text='{display_caption}':"
-            f"fontcolor=white:fontsize=44:"
-            f"box=1:boxcolor=black@0.65:boxborderw=16:"
-            f"x=(w-text_w)/2:y=h-150,"
+            f"fontcolor=white:fontsize=40:"
+            f"box=1:boxcolor=black@0.70:boxborderw=18:"
+            f"x=(w-text_w)/2:y=h-165"
         )
 
-    fade_out_start = max(scene.duration - 0.3, 0)
+    text_vf = (",".join(drawtext_filters) + ",") if drawtext_filters else ""
+
+    fade_out_start = max(scene.duration - 0.35, 0)
     vf = (
         f"{motion_vf},"
-        f"{drawtext_filter}"
-        f"fade=t=in:st=0:d=0.25,fade=t=out:st={fade_out_start}:d=0.25"
+        f"eq=contrast=1.06:brightness=0.01:saturation=1.12,"
+        f"vignette=PI/4,"
+        f"unsharp=5:5:0.8:3:3:0.4,"
+        f"{text_vf}"
+        f"fade=t=in:st=0:d=0.35,fade=t=out:st={fade_out_start}:d=0.35"
     )
 
     cmd = [
@@ -105,6 +116,8 @@ def _build_scene_clip(scene, clip_path: str):
 
 
 def assemble_video(scene_assets, final_path: str):
+    total_duration = sum(s.duration for s in scene_assets)
+
     with tempfile.TemporaryDirectory() as tmp:
         clip_paths = []
         for scene in scene_assets:
@@ -118,19 +131,41 @@ def assemble_video(scene_assets, final_path: str):
                 clean_p = p.replace("\\", "/")
                 f.write(f"file '{clean_p}'\n")
 
-        cmd = [
+        raw_concat_path = os.path.join(tmp, "raw_concat.mp4")
+        concat_cmd = [
             "ffmpeg", "-y",
             "-f", "concat", "-safe", "0", "-i", concat_list_path,
-            "-c:v", "libx264", "-pix_fmt", "yuv420p",
-            "-c:a", "aac", "-b:a", "128k",
-            "-movflags", "+faststart",
-            final_path,
+            "-c:v", "copy",
+            "-c:a", "copy",
+            raw_concat_path,
         ]
         try:
-            subprocess.run(cmd, check=True, capture_output=True)
+            subprocess.run(concat_cmd, check=True, capture_output=True)
         except subprocess.CalledProcessError as exc:
             err_msg = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else str(exc)
             print(f"[video_generator] FFmpeg concat error: {err_msg}")
-            raise RuntimeError(f"FFmpeg failed to assemble final video: {err_msg}")
+            raise RuntimeError(f"FFmpeg failed to assemble concatenated video: {err_msg}")
+
+        # Mix subtle ambient bed under the clear narration for Envato-grade audio finish
+        drone_expr = "0.03*sin(2*PI*110*t)+0.02*sin(2*PI*164.81*t)+0.015*sin(2*PI*220*t)"
+        mix_cmd = [
+            "ffmpeg", "-y",
+            "-i", raw_concat_path,
+            "-f", "lavfi", "-i", f"aevalsrc=exprs='{drone_expr}':s=44100:d={total_duration}",
+            "-filter_complex", "[0:a][1:a]amix=inputs=2:weights=1.0 0.12:dropout_transition=2[aout]",
+            "-map", "0:v",
+            "-map", "[aout]",
+            "-c:v", "copy",
+            "-c:a", "aac", "-b:a", "128k",
+            "-movflags", "+faststart",
+            "-shortest",
+            final_path,
+        ]
+        try:
+            subprocess.run(mix_cmd, check=True, capture_output=True)
+        except Exception as exc:
+            print(f"[video_generator] Ambient mix fallback ({exc}); using direct concat.")
+            import shutil
+            shutil.copy2(raw_concat_path, final_path)
 
     return final_path

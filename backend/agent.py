@@ -23,13 +23,15 @@ OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
 class SceneAsset:
     index: int
     duration: float
+    beat_role: str
     purpose: str
+    category_tag: str
+    caption: str
     visual_prompt: str
     camera_direction: str
     environment: str
     lighting: str
     narration: str
-    caption: str
     image_path: str
     audio_path: str
     has_real_voice: bool
@@ -42,6 +44,7 @@ class GenerationResult:
     description: str
     style: str
     visual_direction: str
+    shared_visual_anchor: dict
     script: str
     scenes: list
     video_path: str
@@ -57,9 +60,10 @@ def validate_and_refine_plan(plan: dict, user_prompt: str) -> dict:
     """
     Quality Control validation step:
     - Verifies duration and scene balance
+    - Enforces 3-beat visual storytelling structure (HOOK -> DYNAMIC -> PAYOFF)
     - Validates visual prompts for physical clarity and strips unwanted text instructions
-    - Trims or tightens narration to match spoken cadence
-    - Ensures punchy, clean lower-third captions
+    - Trims or tightens narration to match spoken cadence (~2.2 words per second)
+    - Ensures punchy, clean lower-third captions (3-5 words) and category tags
     """
     scenes = plan.get("scenes") or []
     if not scenes:
@@ -69,22 +73,38 @@ def validate_and_refine_plan(plan: dict, user_prompt: str) -> dict:
     target_dur = plan.get("duration", 10.0)
     current_total = sum(s.get("duration", 3.0) for s in scenes)
     if current_total > 0 and abs(current_total - target_dur) > 0.5:
-        # Scale scene durations proportionally
         ratio = target_dur / current_total
         for s in scenes:
-            s["duration"] = round(max(s.get("duration", 3.0) * ratio, 2.0), 1)
+            s["duration"] = round(max(s.get("duration", 3.0) * ratio, 2.5), 1)
         plan["duration"] = sum(s["duration"] for s in scenes)
 
-    # 2. Refine each scene
-    visual_dir = plan.get("visual_direction", "Photorealistic 3D technical animation, octane render, studio lighting")
+    # 2. Shared visual anchor validation
+    if not plan.get("shared_visual_anchor"):
+        plan["shared_visual_anchor"] = {
+            "color_palette": ["#0b0f19 deep graphite", "#0ea5e9 electric cyan", "#f59e0b friction amber"],
+            "lighting_setup": "Volumetric key spotlight with high-contrast cyan rim lighting",
+            "primary_material": "Brushed gunmetal steel and polished chrome bevels",
+            "environment_aesthetic": "Minimalist dark technical showroom with mirror reflection",
+        }
+
+    # 3. Refine each scene
+    roles = ["HOOK", "DYNAMIC_MECHANISM", "PAYOFF"]
+    default_tags = ["HOW IT WORKS", "CORE DYNAMIC", "KEY TAKEAWAY"]
 
     for i, s in enumerate(scenes):
-        # Enforce minimum and maximum scene durations
         s["duration"] = max(2.5, min(s.get("duration", 3.5), 6.0))
+
+        # Beat role & category tag
+        if not s.get("beat_role"):
+            s["beat_role"] = roles[i % len(roles)]
+        if not s.get("category_tag"):
+            s["category_tag"] = default_tags[i % len(default_tags)]
+        else:
+            s["category_tag"] = s["category_tag"].upper().strip()
 
         # Purpose fallback
         if not s.get("purpose"):
-            s["purpose"] = f"Scene {i+1} presentation"
+            s["purpose"] = f"Beat {i+1}: {s['beat_role'].replace('_', ' ').title()}"
 
         # Camera direction fallback
         if not s.get("camera_direction"):
@@ -97,29 +117,29 @@ def validate_and_refine_plan(plan: dict, user_prompt: str) -> dict:
 
         # Environment and lighting
         if not s.get("environment"):
-            s["environment"] = "Sleek dark graphite studio stage"
+            s["environment"] = plan["shared_visual_anchor"].get("environment_aesthetic", "Minimalist dark technical stage")
         if not s.get("lighting"):
-            s["lighting"] = "Precision rim lighting with cool accent highlights"
+            s["lighting"] = plan["shared_visual_anchor"].get("lighting_setup", "Studio rim lighting")
 
         # Visual prompt: strip on-image text demands
         vp = s.get("visual_prompt", plan.get("title", ""))
         vp_clean = re.sub(r"(?i)\b(with text|labeled with|text saying|words saying|caption)\b.*", "", vp).strip(" ,.")
         if len(vp_clean) < 20:
-            vp_clean = f"A detailed, authentic 3D representation of {plan.get('topic', 'the subject')}, showing physical structure and materials"
+            vp_clean = f"A detailed 3D representation of {plan.get('topic', 'the subject')}, showing authentic physical structure and materials"
         s["visual_prompt"] = vp_clean
 
-        # Caption: clean and punchy (<= 6 words)
+        # Caption: clean and punchy (3-5 words)
         cap = s.get("caption", "").strip()
         words = cap.split()
-        if len(words) > 6:
-            s["caption"] = " ".join(words[:6])
+        if len(words) > 5:
+            s["caption"] = " ".join(words[:5])
         elif not cap:
             s["caption"] = plan.get("topic", "Overview").title()
 
-        # Narration: ensure spoken cadence fits duration (~2.5 words per sec)
+        # Narration: ensure spoken cadence fits duration (~2.2 words per sec)
         narr = s.get("narration", "").strip()
         narr_words = narr.split()
-        max_words = int(s["duration"] * 3.2)
+        max_words = int(s["duration"] * 2.6)
         if len(narr_words) > max_words:
             s["narration"] = " ".join(narr_words[:max_words]) + "."
 
@@ -156,6 +176,7 @@ async def generate_video(user_prompt: str, on_progress: ProgressCallback = None)
     await emit("scenes")
     scenes_raw = plan["scenes"]
     visual_direction = plan.get("visual_direction", "")
+    shared_visual_anchor = plan.get("shared_visual_anchor", {})
 
     # 5. High-Quality Visuals & Audio Generation
     await emit("visuals")
@@ -173,6 +194,7 @@ async def generate_video(user_prompt: str, on_progress: ProgressCallback = None)
             visual_direction=visual_direction,
             environment=scene.get("environment", ""),
             lighting=scene.get("lighting", ""),
+            shared_visual_anchor=shared_visual_anchor,
         )
         has_voice = await tts.synthesize(scene["narration"], audio_path, min_duration=scene["duration"])
 
@@ -180,13 +202,15 @@ async def generate_video(user_prompt: str, on_progress: ProgressCallback = None)
             SceneAsset(
                 index=i,
                 duration=scene["duration"],
+                beat_role=scene.get("beat_role", "HOOK"),
                 purpose=scene.get("purpose", ""),
+                category_tag=scene.get("category_tag", "HOW IT WORKS"),
+                caption=scene["caption"],
                 visual_prompt=scene["visual_prompt"],
                 camera_direction=scene.get("camera_direction", "Slow cinematic push-in"),
                 environment=scene.get("environment", ""),
                 lighting=scene.get("lighting", ""),
                 narration=scene["narration"],
-                caption=scene["caption"],
                 image_path=img_path,
                 audio_path=audio_path,
                 has_real_voice=has_voice,
@@ -208,18 +232,21 @@ async def generate_video(user_prompt: str, on_progress: ProgressCallback = None)
         description=f"A {plan.get('style', 'explainer')} video about {plan.get('topic', plan['title'])}.",
         style=plan.get("style", "cinematic explainer"),
         visual_direction=visual_direction,
+        shared_visual_anchor=shared_visual_anchor,
         script=plan["narration"],
         scenes=[
             {
                 "index": s.index,
                 "duration": s.duration,
+                "beat_role": s.beat_role,
                 "purpose": s.purpose,
+                "category_tag": s.category_tag,
+                "caption": s.caption,
                 "visual_prompt": s.visual_prompt,
                 "camera_direction": s.camera_direction,
                 "environment": s.environment,
                 "lighting": s.lighting,
                 "narration": s.narration,
-                "caption": s.caption,
             }
             for s in scene_assets
         ],

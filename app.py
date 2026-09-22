@@ -288,7 +288,21 @@ if st.session_state.get("result"):
         st.subheader(f"✨ {res.title}")
         st.caption(res.description)
         
-        if getattr(res, "visual_direction", None):
+        if getattr(res, "shared_visual_anchor", None):
+            anchor = res.shared_visual_anchor
+            pal = anchor.get("color_palette", [])
+            pal_html = " ".join([f"<span style='background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 2px 6px; font-size: 0.75rem; margin-right: 4px;'>{c}</span>" for c in pal]) if pal else ""
+            st.markdown(f"""
+            <div style="background: rgba(129, 140, 248, 0.08); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <strong style="color: #a5b4fc; font-size: 0.88rem;">🎨 Shared Visual Anchor:</strong>
+                    <div>{pal_html}</div>
+                </div>
+                <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.2rem;"><strong>💡 Lighting:</strong> {anchor.get('lighting_setup', 'Studio lighting')}</div>
+                <div style="font-size: 0.82rem; color: #cbd5e1;"><strong>⚙️ Materials:</strong> {anchor.get('primary_material', 'High-detail surfaces')}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        elif getattr(res, "visual_direction", None):
             st.markdown(f"""
             <div style="background: rgba(129, 140, 248, 0.08); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
                 <strong style="color: #a5b4fc;">🎨 Visual Direction:</strong>
@@ -299,13 +313,21 @@ if st.session_state.get("result"):
         st.markdown("### 📝 Full Script")
         st.info(res.script)
         
-        st.markdown("### 🎞️ Director Scenes")
+        st.markdown("### 🎞️ 3-Beat Storyboard Scenes")
         for s in res.scenes:
+            beat_label = s.get("beat_role", "SCENE").replace("_", " ")
+            category_tag = s.get("category_tag", "")
             st.markdown(f"""
             <div class="scene-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                    <strong>Scene {s['index'] + 1} ({s['duration']}s)</strong>
-                    <span style="background: rgba(255,255,255,0.12); padding: 2px 8px; border-radius: 6px; font-size: 0.78rem; color: #f3f4f6;">{s.get('caption', '')}</span>
+                    <div>
+                        <span style="background: rgba(129, 140, 248, 0.2); color: #c7d2fe; border: 1px solid rgba(129, 140, 248, 0.4); padding: 2px 7px; border-radius: 5px; font-size: 0.72rem; font-weight: 700; margin-right: 6px;">{beat_label}</span>
+                        <strong>Scene {s['index'] + 1} ({s['duration']}s)</strong>
+                    </div>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        {f"<span style='color: #818cf8; font-size: 0.75rem; font-weight: 600;'>[ {category_tag} ]</span>" if category_tag else ""}
+                        <span style="background: rgba(255,255,255,0.12); padding: 2px 8px; border-radius: 6px; font-size: 0.78rem; color: #f3f4f6;">{s.get('caption', '')}</span>
+                    </div>
                 </div>
                 {f"<div style='font-size: 0.85rem; color: #d1d5db; margin-bottom: 0.25rem;'><strong>🎯 Purpose:</strong> {s['purpose']}</div>" if s.get('purpose') else ""}
                 {f"<div style='font-size: 0.85rem; color: #93c5fd; margin-bottom: 0.25rem;'><strong>🎥 Camera Motion:</strong> {s['camera_direction']}</div>" if s.get('camera_direction') else ""}

@@ -55,51 +55,99 @@ except Exception:
 # LLM provider — turns a user prompt into a structured, cinematic video plan
 # --------------------------------------------------------------------------
 
-PLANNER_SYSTEM_PROMPT = """You are an elite AI Video Director and Creative Producer for high-end short explainer videos.
-Your task is to take a user's natural language request and design a compelling, cinematic, 10-15 second video plan.
+PLANNER_SYSTEM_PROMPT = """You are an elite Creative Video Director and Motion Designer producing Envato-level, high-impact short explainer videos.
+Your goal is to design a visually cohesive, cinematic, 10-15 second video that feels like ONE continuous, professionally produced micro-documentary or commercial.
 
 Key Director Rules:
-1. TOPIC & DOMAIN ANALYSIS:
-   - Identify whether the topic is Technical/Engineering (e.g. gearbox, motor, engine), Computational/AI (e.g. gradient descent, neural net), Automotive/Physical (e.g. regenerative braking), or Cinematic/Atmospheric (e.g. futuristic city).
-   - Design an authentic, professional visual aesthetic suited to the domain.
-   - Technical topics MUST visually depict actual mechanisms, components, cutaways, and physical energy transfer — not vague abstract shapes.
-   - Computational topics MUST visually depict 3D mathematical surfaces, loss valleys, optimization paths, data vectors, and contour planes.
-   - Cinematic topics MUST feature dramatic lighting, depth of field, volumetric atmosphere, and cinematic framing.
+1. 3-BEAT STORYBOARD STRUCTURE (CRITICAL):
+   Every video MUST follow a real cinematic narrative arc across 3 scenes:
+   - BEAT 1: HOOK (0.0s - 3.5s)
+     * Purpose: Immediately establish the core subject visually. The first second must unmistakably communicate what the video is about.
+     * Framing: Cinematic establishing close-up or macro hero shot.
+     * Beat role: "HOOK"
+     * Category Tag: e.g. "HOW IT WORKS" or "THE CORE CONCEPT"
+   - BEAT 2: DYNAMIC MECHANISM / TRANSFORMATION (3.5s - 7.5s)
+     * Purpose: Reveal the core process, internal movement, or functional interaction in motion.
+     * Framing: Detailed cutaway, dynamic angle, or tracking shot of parts working together.
+     * Beat role: "DYNAMIC_MECHANISM"
+     * Category Tag: e.g. "INTERNAL PROCESS" or "TORQUE RATIOS"
+   - BEAT 3: PAYOFF & OUTCOME (7.5s - 10.5s)
+     * Purpose: Show the resulting output, systemic power delivery, or key takeaway.
+     * Framing: Dynamic wide reveal or full-system harmony.
+     * Beat role: "PAYOFF"
+     * Category Tag: e.g. "KEY TAKEAWAY" or "FINAL DRIVE"
 
-2. VISUAL COHERENCE (CRITICAL):
-   - Define a unified "visual_direction": specify color palette, lighting style, rendering medium (e.g. photorealistic 3D technical animation, octane render), and background environment (e.g. sleek dark graphite showroom, modern computation grid).
-   - All scenes must share this visual_direction so they appear to come from the exact same production.
+2. SHARED VISUAL ANCHOR (100% VISUAL COHERENCE):
+   To prevent scenes from looking like random disconnected images, you MUST define a single "shared_visual_anchor" used across ALL scenes:
+   - "color_palette": array of 3 harmonized colors (e.g. ["#0b0f19 deep graphite", "#0ea5e9 electric cyan", "#f59e0b warm friction amber"])
+   - "lighting_setup": uniform cinematic lighting language (e.g. "45-degree volumetric key spotlight with razor-sharp cyan rim lighting")
+   - "primary_material": physical materials (e.g. "brushed gunmetal steel with polished chrome bevels and translucent oil")
+   - "environment_aesthetic": consistent studio stage or setting (e.g. "minimalist dark technical showroom with glossy mirror floor")
+   Every scene's visual_prompt MUST reuse this exact aesthetic and material language!
 
-3. SCENE BREAKDOWN (2-4 scenes, summing to the target duration):
-   - Each scene must have:
-     * "duration": duration in seconds (number, typically 3-5 seconds each, summing to target duration).
-     * "purpose": what this specific scene communicates in the narrative arc (e.g., establishing mechanism, internal process in action, real-world payoff).
-     * "visual_prompt": a rich, photographic/3D prompt describing the subject, materials, camera angle, lighting, and action. CRITICAL: absolutely NO text, NO labels, NO words, NO subtitles inside the visual description. Describe what the camera SEES physically.
-     * "camera_direction": movement instruction (e.g., "slow cinematic push-in toward central gear teeth", "smooth horizontal pan revealing gear shaft alignment", "wide pull-back showing full drivetrain").
-     * "environment": the specific setting/background (e.g., "dark reflective industrial stage with soft backlighting").
-     * "lighting": lighting setup (e.g., "cool cyan rim lights, soft top spotlight highlighting metal bevels").
-     * "caption": a punchy lower-third caption (<= 6 words, title case, e.g. "Transferring Engine Power", "Calculating Lowest Loss").
-     * "narration": concise, clear, natural spoken sentence that fits the scene duration (~2.5 words per second).
+3. TWO-TIER PROFESSIONAL TYPOGRAPHY:
+   - "category_tag": short, stylish uppercase context tag (1-3 words, e.g. "HOW IT WORKS", "TORQUE MULTIPLICATION", "FINAL DRIVE").
+   - "caption": punchy, concise lower-third headline (3-5 words, e.g. "Interlocking Power Transfer", "Converting Speed to Torque").
+   - Never put full sentences in captions.
 
-4. STRICT OUTPUT FORMAT:
-Respond with ONLY a single JSON object with no markdown formatting, no commentary, strictly conforming to:
+4. NARRATION CADENCE:
+   - Paced for professional voiceover (~2.2 words per second).
+   - Natural spoken rhythm with pauses between beats.
+
+5. VISUAL PROMPT DISCIPLINE:
+   - Describe pure physical cinematography: subject, composition, depth of field, 16:9 widescreen framing, lighting, materials, and motion.
+   - Absolutely NO text, NO labels, NO logos, NO watermark inside the image prompt.
+
+6. STRICT JSON OUTPUT FORMAT:
+Respond with ONLY a single JSON object with no markdown fences, strictly conforming to:
 {
   "title": "string",
   "topic": "string",
   "duration": number,
   "style": "string",
-  "tone": "string",
-  "visual_direction": "string (cohesive style, palette, lighting, renderer)",
-  "narration": "string (full voiceover narration across all scenes)",
+  "visual_direction": "string",
+  "shared_visual_anchor": {
+    "color_palette": ["string", "string", "string"],
+    "lighting_setup": "string",
+    "primary_material": "string",
+    "environment_aesthetic": "string"
+  },
+  "narration": "string (full voiceover narration)",
   "scenes": [
     {
       "duration": number,
+      "beat_role": "HOOK",
       "purpose": "string",
+      "category_tag": "string",
+      "caption": "string",
       "visual_prompt": "string",
       "camera_direction": "string",
       "environment": "string",
       "lighting": "string",
+      "narration": "string"
+    },
+    {
+      "duration": number,
+      "beat_role": "DYNAMIC_MECHANISM",
+      "purpose": "string",
+      "category_tag": "string",
       "caption": "string",
+      "visual_prompt": "string",
+      "camera_direction": "string",
+      "environment": "string",
+      "lighting": "string",
+      "narration": "string"
+    },
+    {
+      "duration": number,
+      "beat_role": "PAYOFF",
+      "purpose": "string",
+      "category_tag": "string",
+      "caption": "string",
+      "visual_prompt": "string",
+      "camera_direction": "string",
+      "environment": "string",
+      "lighting": "string",
       "narration": "string"
     }
   ]
@@ -161,12 +209,12 @@ class LLMProvider:
             return _normalize_plan(plan, user_prompt)
 
     async def _plan_with_gemini(self, user_prompt: str) -> dict:
-        async with httpx.AsyncClient(timeout=35) as client:
+        async with httpx.AsyncClient(timeout=60) as client:
             last_err = None
             full_prompt = f"{PLANNER_SYSTEM_PROMPT}\n\nUser Request: {user_prompt}"
             payload = {"contents": [{"parts": [{"text": full_prompt}]}]}
 
-            for model in ["gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-3.6-flash"]:
+            for model in ["gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3-flash-preview"]:
                 try:
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
                     resp = await client.post(url, json=payload)
@@ -261,6 +309,8 @@ def _reason_about_topic(topic: str, full_prompt: str) -> list:
 
     return [
         {
+            "beat_role": "HOOK",
+            "category_tag": "HOW IT WORKS",
             "purpose": "Establishing overview and core concept",
             "visual": f"A clean, detailed establishing 3D view of {t_lower}, highlighting the primary structure, metallic materials, and realistic scale",
             "camera": "Slow cinematic push-in toward central assembly",
@@ -270,6 +320,8 @@ def _reason_about_topic(topic: str, full_prompt: str) -> list:
             "caption": t[:30].title(),
         },
         {
+            "beat_role": "DYNAMIC_MECHANISM",
+            "category_tag": "CORE DYNAMIC",
             "purpose": "Internal process and operating mechanism in action",
             "visual": f"A close-up internal cutaway view showing the working components of {t_lower} in active motion, parts interacting smoothly with authentic physical detail",
             "camera": "Smooth horizontal tracking pan across moving components",
@@ -279,6 +331,8 @@ def _reason_about_topic(topic: str, full_prompt: str) -> list:
             "caption": "Internal Mechanism",
         },
         {
+            "beat_role": "PAYOFF",
+            "category_tag": "KEY TAKEAWAY",
             "purpose": "Application and real-world outcome",
             "visual": f"A dynamic full-system perspective showing {t_lower} delivering output force, smooth mechanical motion, and complete operational payoff",
             "camera": "Wide pull-back reveal showing output action",
@@ -299,11 +353,27 @@ def _normalize_plan(plan: dict, user_prompt: str) -> dict:
         "visual_direction",
         "Photorealistic 3D technical render, studio lighting, high detail, 8k resolution, clean composition"
     )
+    plan.setdefault(
+        "shared_visual_anchor",
+        {
+            "color_palette": ["#0b0f19 deep graphite", "#0ea5e9 electric cyan", "#f59e0b friction amber"],
+            "lighting_setup": "Volumetric key spotlight with high-contrast cyan rim lighting",
+            "primary_material": "Brushed gunmetal steel and polished chrome bevels",
+            "environment_aesthetic": "Minimalist dark technical showroom with mirror reflection",
+        }
+    )
+
     scenes = plan.get("scenes") or []
     if not scenes:
         scenes = _reason_about_topic(plan["topic"], user_prompt)
+    
+    roles = ["HOOK", "DYNAMIC_MECHANISM", "PAYOFF"]
+    default_tags = ["HOW IT WORKS", "CORE DYNAMIC", "FINAL TAKEAWAY"]
+
     for i, s in enumerate(scenes):
         s["duration"] = float(s.get("duration", 3.5))
+        s.setdefault("beat_role", roles[i % len(roles)])
+        s.setdefault("category_tag", default_tags[i % len(default_tags)])
         s.setdefault("purpose", f"Scene {i+1} explanation")
         s.setdefault("visual_prompt", plan["title"])
         s.setdefault("camera_direction", "Slow cinematic push-in")
@@ -327,7 +397,7 @@ class VisualProvider:
     Topic-specific AI visuals: Pollinations.ai generates real scene imagery
     (Flux / SD) directly matching the LLM visual prompt so the video actually
     represents the subject matter.
-    Fallback: procedurally generated scene cards using Pillow with system fonts.
+    Fallback: encyclopedic visual search or procedurally generated scene cards.
     """
 
     def __init__(self):
@@ -342,18 +412,38 @@ class VisualProvider:
         visual_direction: str = "",
         environment: str = "",
         lighting: str = "",
+        shared_visual_anchor: dict = None,
     ):
         # Build a coherent, high-detail prompt free of text labels
         style_context = visual_direction.strip() if visual_direction else "3D cinematic technical render, octane render"
         env_context = environment.strip() if environment else "clean background"
         light_context = lighting.strip() if lighting else "studio lighting"
         
+        anchor_parts = []
+        if shared_visual_anchor:
+            palette = shared_visual_anchor.get("color_palette")
+            if palette and isinstance(palette, list):
+                anchor_parts.append(f"Color palette: {', '.join(palette)}")
+            mat = shared_visual_anchor.get("primary_material")
+            if mat:
+                anchor_parts.append(f"Materials: {mat}")
+            ls = shared_visual_anchor.get("lighting_setup")
+            if ls:
+                anchor_parts.append(f"Lighting: {ls}")
+            ea = shared_visual_anchor.get("environment_aesthetic")
+            if ea:
+                anchor_parts.append(f"Setting: {ea}")
+        
+        anchor_str = ". ".join(anchor_parts)
+        if anchor_str:
+            anchor_str = f" {anchor_str}."
+
         # Clean text directives from prompt
         cleaned_prompt = re.sub(r"(?i)\b(with text|labeled with|text saying|words saying|caption)\b.*", "", visual_prompt).strip(" ,.")
         
         enriched_prompt = (
-            f"{cleaned_prompt}. Style: {style_context}. Environment: {env_context}. Lighting: {light_context}. "
-            f"8k resolution, highly detailed, sharp focus, masterpiece composition. "
+            f"{cleaned_prompt}. Style: {style_context}. Environment: {env_context}. Lighting: {light_context}.{anchor_str} "
+            f"16:9 widescreen composition, 8k resolution, highly detailed, sharp focus, masterpiece composition. "
             f"No text, no labels, no watermark, no logos, no typography, no blur."
         )
 
