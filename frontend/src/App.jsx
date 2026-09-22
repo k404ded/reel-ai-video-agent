@@ -3,13 +3,14 @@ import "./App.css";
 
 const STAGES = [
   { key: "understanding", label: "Understanding your idea" },
-  { key: "planning", label: "Planning the video" },
+  { key: "planning", label: "Planning cinematic scenes" },
+  { key: "quality_check", label: "Refining director prompts" },
   { key: "scripting", label: "Writing the script" },
-  { key: "scenes", label: "Creating scenes" },
+  { key: "scenes", label: "Creating scene composition" },
   { key: "visuals", label: "Generating visuals" },
-  { key: "audio", label: "Adding audio" },
+  { key: "audio", label: "Adding voiceover" },
   { key: "captions", label: "Adding captions" },
-  { key: "rendering", label: "Rendering video" },
+  { key: "rendering", label: "Rendering motion video" },
 ];
 
 const EXAMPLES = [
@@ -168,21 +169,32 @@ export default function App() {
               <h2>{result.title}</h2>
               <p className="result-desc">{result.description}</p>
 
+              {result.visual_direction && (
+                <div className="visual-direction-badge">
+                  <strong>Visual Direction:</strong> {result.visual_direction}
+                </div>
+              )}
+
               <h3>Script</h3>
               <p className="result-script">{result.script}</p>
 
               <h3>Scenes</h3>
               <ul className="scene-list">
                 {result.scenes.map((s) => (
-                  <li key={s.index}>
-                    <span className="scene-caption">{s.caption}</span>
-                    <span className="scene-duration">{s.duration}s</span>
+                  <li key={s.index} className="scene-item">
+                    <div className="scene-header">
+                      <span className="scene-caption">{s.caption}</span>
+                      <span className="scene-duration">{s.duration}s</span>
+                    </div>
+                    {s.camera_direction && (
+                      <div className="scene-camera">🎥 {s.camera_direction}</div>
+                    )}
                   </li>
                 ))}
               </ul>
 
               <a className="download-btn" href={result.video_url} download>
-                Download MP4
+                Download 1080p MP4
               </a>
 
               {(result.providers.llm_fallback ||

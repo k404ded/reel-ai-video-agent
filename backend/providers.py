@@ -52,35 +52,56 @@ except Exception:
 
 
 # --------------------------------------------------------------------------
-# LLM provider — turns a user prompt into a structured video plan
+# LLM provider — turns a user prompt into a structured, cinematic video plan
 # --------------------------------------------------------------------------
 
-PLANNER_SYSTEM_PROMPT = """You are a video planning agent inside an automated \
-AI video generation pipeline. Given a user's natural-language request for a \
-short video, produce a structured JSON video plan.
+PLANNER_SYSTEM_PROMPT = """You are an elite AI Video Director and Creative Producer for high-end short explainer videos.
+Your task is to take a user's natural language request and design a compelling, cinematic, 10-15 second video plan.
 
-Rules:
-- Infer topic, purpose, visual style, tone, and duration from the request. \
-If the user gives a duration, use it; otherwise default to 10 seconds.
-- Break the video into 2-5 scenes whose durations sum to the total duration.
-- Every scene needs: duration (seconds, number), visual_prompt (a concrete, \
-literal description an image-generation model could render — no abstract \
-jargon, describe what is actually seen), narration (a short spoken line for \
-that scene), and caption (a very short on-screen text, <=8 words).
-- Reason dynamically about the actual subject matter. Never reuse a canned \
-template — the visuals and narration must be specific to what the user asked \
-for.
-- Respond with ONLY a single JSON object, no markdown fences, no commentary, \
-matching exactly this shape:
+Key Director Rules:
+1. TOPIC & DOMAIN ANALYSIS:
+   - Identify whether the topic is Technical/Engineering (e.g. gearbox, motor, engine), Computational/AI (e.g. gradient descent, neural net), Automotive/Physical (e.g. regenerative braking), or Cinematic/Atmospheric (e.g. futuristic city).
+   - Design an authentic, professional visual aesthetic suited to the domain.
+   - Technical topics MUST visually depict actual mechanisms, components, cutaways, and physical energy transfer — not vague abstract shapes.
+   - Computational topics MUST visually depict 3D mathematical surfaces, loss valleys, optimization paths, data vectors, and contour planes.
+   - Cinematic topics MUST feature dramatic lighting, depth of field, volumetric atmosphere, and cinematic framing.
+
+2. VISUAL COHERENCE (CRITICAL):
+   - Define a unified "visual_direction": specify color palette, lighting style, rendering medium (e.g. photorealistic 3D technical animation, octane render), and background environment (e.g. sleek dark graphite showroom, modern computation grid).
+   - All scenes must share this visual_direction so they appear to come from the exact same production.
+
+3. SCENE BREAKDOWN (2-4 scenes, summing to the target duration):
+   - Each scene must have:
+     * "duration": duration in seconds (number, typically 3-5 seconds each, summing to target duration).
+     * "purpose": what this specific scene communicates in the narrative arc (e.g., establishing mechanism, internal process in action, real-world payoff).
+     * "visual_prompt": a rich, photographic/3D prompt describing the subject, materials, camera angle, lighting, and action. CRITICAL: absolutely NO text, NO labels, NO words, NO subtitles inside the visual description. Describe what the camera SEES physically.
+     * "camera_direction": movement instruction (e.g., "slow cinematic push-in toward central gear teeth", "smooth horizontal pan revealing gear shaft alignment", "wide pull-back showing full drivetrain").
+     * "environment": the specific setting/background (e.g., "dark reflective industrial stage with soft backlighting").
+     * "lighting": lighting setup (e.g., "cool cyan rim lights, soft top spotlight highlighting metal bevels").
+     * "caption": a punchy lower-third caption (<= 6 words, title case, e.g. "Transferring Engine Power", "Calculating Lowest Loss").
+     * "narration": concise, clear, natural spoken sentence that fits the scene duration (~2.5 words per second).
+
+4. STRICT OUTPUT FORMAT:
+Respond with ONLY a single JSON object with no markdown formatting, no commentary, strictly conforming to:
 {
   "title": "string",
   "topic": "string",
   "duration": number,
   "style": "string",
   "tone": "string",
-  "narration": "string (full narration, all scenes concatenated)",
+  "visual_direction": "string (cohesive style, palette, lighting, renderer)",
+  "narration": "string (full voiceover narration across all scenes)",
   "scenes": [
-    {"duration": number, "visual_prompt": "string", "narration": "string", "caption": "string"}
+    {
+      "duration": number,
+      "purpose": "string",
+      "visual_prompt": "string",
+      "camera_direction": "string",
+      "environment": "string",
+      "lighting": "string",
+      "caption": "string",
+      "narration": "string"
+    }
   ]
 }
 """
@@ -125,7 +146,7 @@ class LLMProvider:
                 },
                 json={
                     "model": "claude-sonnet-4-6",
-                    "max_tokens": 1500,
+                    "max_tokens": 1800,
                     "system": PLANNER_SYSTEM_PROMPT,
                     "messages": [{"role": "user", "content": user_prompt}],
                 },
@@ -140,7 +161,7 @@ class LLMProvider:
             return _normalize_plan(plan, user_prompt)
 
     async def _plan_with_gemini(self, user_prompt: str) -> dict:
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=35) as client:
             last_err = None
             full_prompt = f"{PLANNER_SYSTEM_PROMPT}\n\nUser Request: {user_prompt}"
             payload = {"contents": [{"parts": [{"text": full_prompt}]}]}
@@ -162,16 +183,19 @@ class LLMProvider:
 
     def _plan_with_fallback(self, user_prompt: str) -> dict:
         """
-        A deterministic, dependency-free planner used when no LLM key is
-        configured. It does lightweight keyword reasoning over the prompt so
-        the demo still produces a *topic-specific* plan rather than a static
-        template, without calling any external service.
+        Deterministic, dependency-free planner used when no LLM key is
+        configured. Produces domain-appropriate scene specifications.
         """
         prompt = user_prompt.strip()
         duration = _extract_duration(prompt) or 10
         topic = _extract_topic(prompt)
         style = "cinematic" if any(w in prompt.lower() for w in ["cinematic", "futuristic", "dramatic"]) else "clean educational"
         tone = "energetic" if style == "cinematic" else "clear and informative"
+        visual_dir = (
+            "Cinematic photorealistic 3D visualization, volumetric atmospheric lighting, deep contrast, 8k render"
+            if style == "cinematic" else
+            "Clean technical 3D engineering render, dark graphite studio background, metallic reflections, precision lighting"
+        )
 
         beats = _reason_about_topic(topic, prompt)
         n = len(beats)
@@ -183,7 +207,11 @@ class LLMProvider:
             scenes.append(
                 {
                     "duration": max(d, 1),
+                    "purpose": beat["purpose"],
                     "visual_prompt": beat["visual"],
+                    "camera_direction": beat["camera"],
+                    "environment": beat["environment"],
+                    "lighting": beat["lighting"],
                     "narration": beat["narration"],
                     "caption": beat["caption"],
                 }
@@ -195,6 +223,7 @@ class LLMProvider:
             "duration": duration,
             "style": style,
             "tone": tone,
+            "visual_direction": visual_dir,
             "narration": " ".join(s["narration"] for s in scenes),
             "scenes": scenes,
         }
@@ -226,36 +255,37 @@ def _extract_topic(prompt: str) -> str:
 
 
 def _reason_about_topic(topic: str, full_prompt: str) -> list:
-    """
-    Very small piece of "reasoning": build a 3-beat narrative arc
-    (introduce -> mechanism -> outcome) around whatever noun phrase the
-    topic resolves to, so different topics produce genuinely different
-    scene content without hardcoding specific subjects like "gearbox" or
-    "gradient descent".
-    """
-    t = topic.strip() or "the subject"
+    t = topic.strip() or "the mechanism"
     t_lower = t.lower()
+    is_cinematic = "cinematic" in full_prompt.lower()
 
     return [
         {
-            "visual": f"A clean, well-lit establishing shot introducing {t_lower}, "
-                      f"labelled clearly, centered composition, soft studio lighting, "
-                      f"minimal background, {('dramatic wide shot, moody lighting' if 'cinematic' in full_prompt.lower() else 'bright flat-design illustration style')}",
-            "narration": f"Let's take a look at {t_lower}.",
-            "caption": t[:40],
+            "purpose": "Establishing overview and core concept",
+            "visual": f"A clean, detailed establishing 3D view of {t_lower}, highlighting the primary structure, metallic materials, and realistic scale",
+            "camera": "Slow cinematic push-in toward central assembly",
+            "environment": "Sleek dark studio stage with subtle reflection" if not is_cinematic else "Sprawling futuristic atmosphere",
+            "lighting": "Cool directional rim lighting with soft ambient fill",
+            "narration": f"Here is how {t_lower} works.",
+            "caption": t[:30].title(),
         },
         {
-            "visual": f"A close-up diagrammatic view showing the internal mechanism or process "
-                      f"of {t_lower} in action, arrows indicating motion or flow, "
-                      f"labelled parts, clean vector-style illustration",
-            "narration": f"Here's how {t_lower} actually works, step by step.",
-            "caption": "How it works",
+            "purpose": "Internal process and operating mechanism in action",
+            "visual": f"A close-up internal cutaway view showing the working components of {t_lower} in active motion, parts interacting smoothly with authentic physical detail",
+            "camera": "Smooth horizontal tracking pan across moving components",
+            "environment": "High-tech engineering inspection bay",
+            "lighting": "Precision spotlight highlighting friction surfaces and contact points",
+            "narration": f"The components work together to transfer power with maximum efficiency.",
+            "caption": "Internal Mechanism",
         },
         {
-            "visual": f"A final wide shot showing the completed result or effect of {t_lower}, "
-                      f"satisfying and clear payoff, bright and polished look",
-            "narration": f"And that's the core idea behind {t_lower}.",
-            "caption": "The result",
+            "purpose": "Application and real-world outcome",
+            "visual": f"A dynamic full-system perspective showing {t_lower} delivering output force, smooth mechanical motion, and complete operational payoff",
+            "camera": "Wide pull-back reveal showing output action",
+            "environment": "Modern integrated testing facility",
+            "lighting": "Vibrant dynamic lighting emphasizing speed and power",
+            "narration": f"Delivering consistent performance and reliable control.",
+            "caption": "Power & Efficiency",
         },
     ]
 
@@ -265,12 +295,20 @@ def _normalize_plan(plan: dict, user_prompt: str) -> dict:
     plan.setdefault("topic", plan["title"])
     plan.setdefault("style", "clean educational")
     plan.setdefault("tone", "clear and informative")
+    plan.setdefault(
+        "visual_direction",
+        "Photorealistic 3D technical render, studio lighting, high detail, 8k resolution, clean composition"
+    )
     scenes = plan.get("scenes") or []
     if not scenes:
         scenes = _reason_about_topic(plan["topic"], user_prompt)
-    for s in scenes:
-        s["duration"] = float(s.get("duration", 3))
+    for i, s in enumerate(scenes):
+        s["duration"] = float(s.get("duration", 3.5))
+        s.setdefault("purpose", f"Scene {i+1} explanation")
         s.setdefault("visual_prompt", plan["title"])
+        s.setdefault("camera_direction", "Slow cinematic push-in")
+        s.setdefault("environment", "Clean dark studio background")
+        s.setdefault("lighting", "Studio rim lighting")
         s.setdefault("narration", "")
         s.setdefault("caption", "")
     plan["scenes"] = scenes
@@ -280,7 +318,7 @@ def _normalize_plan(plan: dict, user_prompt: str) -> dict:
 
 
 # --------------------------------------------------------------------------
-# Visual provider — one image per scene
+# Visual provider — one high-definition coherent image per scene
 # --------------------------------------------------------------------------
 
 class VisualProvider:
@@ -295,23 +333,57 @@ class VisualProvider:
     def __init__(self):
         self.using_fallback = OPENAI_API_KEY is None
 
-    async def generate_scene_image(self, visual_prompt: str, index: int, out_path: str, size=(1920, 1080)):
+    async def generate_scene_image(
+        self,
+        visual_prompt: str,
+        index: int,
+        out_path: str,
+        size=(1920, 1080),
+        visual_direction: str = "",
+        environment: str = "",
+        lighting: str = "",
+    ):
+        # Build a coherent, high-detail prompt free of text labels
+        style_context = visual_direction.strip() if visual_direction else "3D cinematic technical render, octane render"
+        env_context = environment.strip() if environment else "clean background"
+        light_context = lighting.strip() if lighting else "studio lighting"
+        
+        # Clean text directives from prompt
+        cleaned_prompt = re.sub(r"(?i)\b(with text|labeled with|text saying|words saying|caption)\b.*", "", visual_prompt).strip(" ,.")
+        
+        enriched_prompt = (
+            f"{cleaned_prompt}. Style: {style_context}. Environment: {env_context}. Lighting: {light_context}. "
+            f"8k resolution, highly detailed, sharp focus, masterpiece composition. "
+            f"No text, no labels, no watermark, no logos, no typography, no blur."
+        )
+
         if OPENAI_API_KEY:
             try:
-                await self._generate_with_openai(visual_prompt, out_path, size)
+                await self._generate_with_openai(enriched_prompt, out_path, size)
                 self.using_fallback = False
                 return
             except Exception as exc:
                 print(f"[VisualProvider] OpenAI image call failed ({exc}); using visual generator.")
 
-        # When OpenAI key is not set or fails, generate real topic-relevant visuals
+        # When OpenAI key is not set or fails, generate real topic-relevant visuals via Pollinations
         try:
-            await self._generate_with_pollinations(visual_prompt, out_path, size)
+            seed = 100 + index * 7
+            await self._generate_with_pollinations(enriched_prompt, out_path, size, seed=seed)
             return
         except Exception as exc:
-            print(f"[VisualProvider] Pollinations visual call failed ({exc}); using procedural fallback.")
+            print(f"[VisualProvider] Pollinations visual call failed ({exc}); trying topic visual repository.")
 
-        self._generate_fallback(visual_prompt, index, out_path, size)
+        # Fallback to authentic visual from educational/encyclopedic repository
+        try:
+            topic = cleaned_prompt.split(",")[0].split(".")[0].strip()
+            if len(topic.split()) > 4:
+                topic = " ".join(topic.split()[:4])
+            await self._generate_with_wikipedia(topic, out_path, size)
+            return
+        except Exception as exc:
+            print(f"[VisualProvider] Topic visual repository failed ({exc}); using procedural fallback.")
+
+        self._generate_fallback(cleaned_prompt, index, out_path, size)
 
     async def _generate_with_openai(self, visual_prompt: str, out_path: str, size):
         async with httpx.AsyncClient(timeout=120) as client:
@@ -320,7 +392,7 @@ class VisualProvider:
                 headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
                 json={
                     "model": "dall-e-3",
-                    "prompt": visual_prompt,
+                    "prompt": visual_prompt[:950],
                     "size": "1024x1024",
                     "n": 1,
                     "response_format": "b64_json",
@@ -335,25 +407,85 @@ class VisualProvider:
                 img = img.resize(size, Image.Resampling.LANCZOS)
             img.save(out_path, "PNG", quality=95)
 
-    async def _generate_with_pollinations(self, visual_prompt: str, out_path: str, size):
+    async def _generate_with_pollinations(self, visual_prompt: str, out_path: str, size, seed: int = 42):
         import urllib.parse
-        encoded = urllib.parse.quote(visual_prompt[:200])
-        url = f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=576&nologo=true"
-        async with httpx.AsyncClient(timeout=12) as client:
-            resp = await client.get(url)
-            resp.raise_for_status()
-            img = Image.open(BytesIO(resp.content)).convert("RGB")
-            if img.size != size:
-                img = img.resize(size, Image.Resampling.LANCZOS)
-            img.save(out_path, "PNG", quality=95)
+        clean_text = re.sub(r"[^a-zA-Z0-9, ]", " ", visual_prompt)
+        clean_text = " ".join(clean_text.split())
+        if len(clean_text) > 140:
+            clean_text = clean_text[:140].rsplit(" ", 1)[0]
+
+        encoded = urllib.parse.quote(clean_text)
+        urls = [
+            f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=576&seed={seed}&model=turbo&nologo=true",
+            f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=576&seed={seed}&nologo=true",
+        ]
+        last_exc = None
+        for url in urls:
+            try:
+                async with httpx.AsyncClient(timeout=25) as client:
+                    resp = await client.get(url)
+                    resp.raise_for_status()
+                    img = Image.open(BytesIO(resp.content)).convert("RGB")
+                    if img.size != size:
+                        img = img.resize(size, Image.Resampling.LANCZOS)
+                    img.save(out_path, "PNG", quality=95)
+                    self.using_fallback = False
+                    return
+            except Exception as exc:
+                last_exc = exc
+                continue
+        if last_exc:
+            raise last_exc
+
+    async def _generate_with_wikipedia(self, topic: str, out_path: str, size):
+        import urllib.parse
+        headers = {"User-Agent": "ReelVideoAgent/1.0 (contact@reelagent.ai)"}
+        clean_query = re.sub(r"[^a-zA-Z0-9_ ]", "", topic).strip().replace(" ", "_")
+        async with httpx.AsyncClient(timeout=12, follow_redirects=True) as client:
+            resp = await client.get(f"https://en.wikipedia.org/api/rest_v1/page/summary/{clean_query}", headers=headers)
+            if resp.status_code == 200:
+                data = resp.json()
+                img_url = (data.get("originalimage") or {}).get("source") or (data.get("thumbnail") or {}).get("source")
+                if img_url:
+                    img_resp = await client.get(img_url, headers=headers)
+                    if img_resp.status_code == 200:
+                        img = Image.open(BytesIO(img_resp.content)).convert("RGB")
+                        img = img.resize(size, Image.Resampling.LANCZOS)
+                        img.save(out_path, "PNG", quality=95)
+                        self.using_fallback = False
+                        return
+
+            search_resp = await client.get(f"https://en.wikipedia.org/w/rest.php/v1/search/page?q={urllib.parse.quote(topic)}&limit=3", headers=headers)
+            if search_resp.status_code == 200:
+                pages = search_resp.json().get("pages", [])
+                for p in pages:
+                    thumb = p.get("thumbnail") or {}
+                    url = thumb.get("url")
+                    if url:
+                        if url.startswith("//"):
+                            url = "https:" + url
+                        larger_url = re.sub(r"/\d+px-", "/1280px-", url)
+                        try:
+                            img_resp = await client.get(larger_url, headers=headers)
+                            if img_resp.status_code != 200:
+                                img_resp = await client.get(url, headers=headers)
+                            if img_resp.status_code == 200:
+                                img = Image.open(BytesIO(img_resp.content)).convert("RGB")
+                                img = img.resize(size, Image.Resampling.LANCZOS)
+                                img.save(out_path, "PNG", quality=95)
+                                self.using_fallback = False
+                                return
+                        except Exception:
+                            continue
+        raise RuntimeError("No suitable image found in visual repository")
 
     def _generate_fallback(self, visual_prompt: str, index: int, out_path: str, size):
         palettes = [
-            ((20, 24, 38), (86, 97, 240)),
-            ((15, 32, 39), (44, 200, 178)),
-            ((36, 16, 46), (233, 89, 154)),
-            ((10, 30, 20), (110, 220, 130)),
-            ((40, 20, 10), (240, 150, 60)),
+            ((15, 20, 32), (56, 75, 160)),
+            ((10, 24, 30), (32, 140, 130)),
+            ((28, 14, 38), (170, 60, 120)),
+            ((12, 26, 18), (80, 160, 95)),
+            ((30, 18, 12), (180, 110, 45)),
         ]
         top, bottom = palettes[index % len(palettes)]
         img = Image.new("RGB", size, top)
@@ -365,7 +497,6 @@ class VisualProvider:
             b = int(top[2] + (bottom[2] - top[2]) * t)
             draw.line([(0, y), (size[0], y)], fill=(r, g, b))
 
-        # soft decorative circles for visual interest
         overlay = Image.new("RGBA", size, (0, 0, 0, 0))
         odraw = ImageDraw.Draw(overlay)
         for i in range(6):
@@ -377,13 +508,12 @@ class VisualProvider:
         img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
         draw = ImageDraw.Draw(img)
 
-        # Wrapped prompt text as a stand-in for the described scene
         try:
             if os.path.exists("C:/Windows/Fonts/arialbd.ttf"):
-                font = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", 54)
+                font = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", 52)
                 small_font = ImageFont.truetype("C:/Windows/Fonts/arial.ttf", 30)
             elif os.path.exists("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"):
-                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 54)
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 52)
                 small_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
             else:
                 font = ImageFont.load_default()
@@ -392,7 +522,7 @@ class VisualProvider:
             font = ImageFont.load_default()
             small_font = font
 
-        wrapped = textwrap.fill(visual_prompt, width=34)
+        wrapped = textwrap.fill(visual_prompt, width=36)
         bbox = draw.multiline_textbbox((0, 0), wrapped, font=font, spacing=14)
         tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
         x = (size[0] - tw) / 2
@@ -432,7 +562,6 @@ class TTSProvider:
             except Exception as exc:
                 print(f"[TTSProvider] ElevenLabs call failed ({exc}); trying voice fallback.")
 
-        # Use neural TTS for natural human voiceover
         try:
             await self._synthesize_with_edgetts(clean_text, out_path)
             return True
@@ -444,7 +573,8 @@ class TTSProvider:
 
     async def _synthesize_with_edgetts(self, text: str, out_path: str):
         import edge_tts
-        communicate = edge_tts.Communicate(text, "en-US-JennyNeural")
+        # Clear, engaging voice with slightly optimized pacing
+        communicate = edge_tts.Communicate(text, "en-US-JennyNeural", rate="+3%")
         await communicate.save(out_path)
 
     async def _synthesize_with_elevenlabs(self, text: str, out_path: str):

@@ -29,14 +29,15 @@ app.mount("/output", StaticFiles(directory=OUTPUT_DIR), name="output")
 
 STAGE_LABELS = {
     "understanding": "Understanding your idea...",
-    "planning": "Planning the video...",
-    "scripting": "Writing the script...",
-    "scenes": "Creating scenes...",
-    "visuals": "Generating visuals...",
-    "audio": "Adding audio...",
-    "captions": "Adding captions...",
-    "rendering": "Rendering video...",
-    "done": "Done!",
+    "planning": "Planning cinematic scenes...",
+    "quality_check": "Refining director prompts...",
+    "scripting": "Writing narration script...",
+    "scenes": "Configuring scene composition...",
+    "visuals": "Generating high-quality visuals...",
+    "audio": "Synthesizing voiceover audio...",
+    "captions": "Generating lower-third captions...",
+    "rendering": "Assembling video with motion...",
+    "done": "Video complete!",
 }
 
 
@@ -101,6 +102,8 @@ def _serialize(result):
         "job_id": result.job_id,
         "title": result.title,
         "description": result.description,
+        "style": getattr(result, "style", "cinematic explainer"),
+        "visual_direction": getattr(result, "visual_direction", ""),
         "script": result.script,
         "scenes": result.scenes,
         "video_url": f"/output/{rel_video_path}",

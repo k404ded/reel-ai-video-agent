@@ -228,13 +228,14 @@ generate_clicked = st.button("🎬 Generate Video", type="primary", use_containe
 # Stages
 STAGE_LABELS = {
     "understanding": "Understanding your idea...",
-    "planning": "Planning the video with AI...",
+    "planning": "Planning cinematic scenes with Director AI...",
+    "quality_check": "Quality check & prompt refinement...",
     "scripting": "Writing scene narration & script...",
-    "scenes": "Configuring scene timing...",
-    "visuals": "Generating scene visuals...",
+    "scenes": "Configuring scene composition & timing...",
+    "visuals": "Generating high-definition visuals...",
     "audio": "Synthesizing voiceover audio...",
-    "captions": "Generating subtitles & captions...",
-    "rendering": "Assembling final MP4 with FFmpeg...",
+    "captions": "Generating lower-third captions...",
+    "rendering": "Assembling MP4 with Ken Burns motion & transitions...",
     "done": "Video complete!",
 }
 
@@ -275,7 +276,7 @@ if st.session_state.get("result"):
                 st.video(video_bytes)
                 
                 st.download_button(
-                    label="⬇️ Download MP4",
+                    label="⬇️ Download 1080p MP4",
                     data=video_bytes,
                     file_name=f"{res.title.replace(' ', '_').lower()}.mp4",
                     mime="video/mp4",
@@ -287,14 +288,28 @@ if st.session_state.get("result"):
         st.subheader(f"✨ {res.title}")
         st.caption(res.description)
         
+        if getattr(res, "visual_direction", None):
+            st.markdown(f"""
+            <div style="background: rgba(129, 140, 248, 0.08); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
+                <strong style="color: #a5b4fc;">🎨 Visual Direction:</strong>
+                <p style="color: #e0e7ff; margin: 0.25rem 0 0 0; font-size: 0.9rem;">{res.visual_direction}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
         st.markdown("### 📝 Full Script")
         st.info(res.script)
         
-        st.markdown("### 🎞️ Scenes")
+        st.markdown("### 🎞️ Director Scenes")
         for s in res.scenes:
             st.markdown(f"""
             <div class="scene-card">
-                <strong>Scene {s['index'] + 1} ({s['duration']}s)</strong>: {s['caption']}<br/>
-                <small style="color: #9ca3af;">{s['visual_prompt']}</small>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <strong>Scene {s['index'] + 1} ({s['duration']}s)</strong>
+                    <span style="background: rgba(255,255,255,0.12); padding: 2px 8px; border-radius: 6px; font-size: 0.78rem; color: #f3f4f6;">{s.get('caption', '')}</span>
+                </div>
+                {f"<div style='font-size: 0.85rem; color: #d1d5db; margin-bottom: 0.25rem;'><strong>🎯 Purpose:</strong> {s['purpose']}</div>" if s.get('purpose') else ""}
+                {f"<div style='font-size: 0.85rem; color: #93c5fd; margin-bottom: 0.25rem;'><strong>🎥 Camera Motion:</strong> {s['camera_direction']}</div>" if s.get('camera_direction') else ""}
+                <div style='font-size: 0.82rem; color: #9ca3af; margin-bottom: 0.25rem;'><strong>🎨 Visual:</strong> {s['visual_prompt']}</div>
+                <div style='font-size: 0.82rem; color: #cbd5e1;'><strong>🎙️ Voiceover:</strong> &ldquo;{s.get('narration', '')}&rdquo;</div>
             </div>
             """, unsafe_allow_html=True)
