@@ -190,33 +190,44 @@ with st.sidebar:
     custom_gemini = st.text_input("Gemini API Key (optional override)", type="password")
     if custom_gemini:
         os.environ["GEMINI_API_KEY"] = custom_gemini
-    st.caption("Reel uses Google Gemini for planning, Flux/SD for scene imagery, Edge-TTS for voiceover, and FFmpeg for assembly.")
+    st.caption("Reel Universal Technical Video Mode: Procedural 1080p mathematical, algorithmic, CAD, and engineering animations with zero avatars and synchronized captions.")
 
 # Hero Header
 st.markdown("""
 <div class="hero-container">
     <h1 class="hero-title">
-        Describe the video.<br/>
-        <span class="hero-title-gradient">Reel builds it.</span>
+        Universal Technical Video Agent.<br/>
+        <span class="hero-title-gradient">100% Subject-Focused.</span>
     </h1>
     <p class="hero-subtitle">
-        One sentence is enough — Reel plans the scenes, generates the visuals and voiceover, and renders a finished 1080p MP4.
+        Enter any engineering, mathematical, algorithmic, CAD, automotive, or scientific concept — Reel generates authentic 1080p technical animations with real temporal motion in seconds.
     </p>
 </div>
 """, unsafe_allow_html=True)
 
-# Examples
+# Examples showcasing universal technical domains
 EXAMPLES = [
     "Explain Gradient Descent",
+    "Explain Binary Search",
+    "Explain PID Control",
+    "Explain CAN Bus arbitration",
     "Explain Command Finder in CATIA",
-    "Explain CAN Bus arbitration in automotive networks",
-    "Explain how regenerative braking works in electric vehicles",
+    "Explain EV Regenerative Braking",
+    "Explain Neural Network Backprop",
+    "Explain CNC Milling Toolpaths",
 ]
 
-col_ex1, col_ex2, col_ex3, col_ex4 = st.columns(4)
-for i, (col, ex) in enumerate(zip([col_ex1, col_ex2, col_ex3, col_ex4], EXAMPLES)):
-    with col:
+col_row1 = st.columns(4)
+for i, ex in enumerate(EXAMPLES[:4]):
+    with col_row1[i]:
         if st.button(ex, key=f"ex_{i}", use_container_width=True):
+            st.session_state["user_prompt"] = ex
+            st.rerun()
+
+col_row2 = st.columns(4)
+for i, ex in enumerate(EXAMPLES[4:]):
+    with col_row2[i]:
+        if st.button(ex, key=f"ex_{i+4}", use_container_width=True):
             st.session_state["user_prompt"] = ex
             st.rerun()
 

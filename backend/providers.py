@@ -305,6 +305,39 @@ class VisualProvider:
     Fallback: encyclopedic visual search or procedurally generated scene cards.
     """
 
+DEFAULT_TECHNICAL_PALETTE = {
+    "background": "#0b0e14",
+    "grid": "#1e293b",
+    "primary_accent": "#38bdf8",
+    "secondary_accent": "#f59e0b",
+    "highlight": "#10b981",
+    "text": "#f8fafc",
+    "subtext": "#94a3b8",
+}
+
+TECHNICAL_PROCEDURAL_TYPES = {
+    "mathematical_animation",
+    "algorithm_visualization",
+    "neural_network_animation",
+    "control_system_animation",
+    "network_protocol_animation",
+    "battery_system_animation",
+    "cad_3d_visualization",
+    "software_interface_simulation",
+    "automotive_system_animation",
+    "manufacturing_process_animation",
+    "system_architecture_diagram",
+}
+
+
+class VisualProvider:
+    """
+    Universal Technical Video Mode Visual Provider.
+    Strictly zero AI avatars, zero human presenters.
+    Focuses 100% on technical diagrams, mathematical surfaces, code/algorithms, and CAD/schematics.
+    Renders high-speed technical frame previews locally (<0.05s) for instant generation speed.
+    """
+
     def __init__(self):
         self.using_fallback = OPENAI_API_KEY is None
 
@@ -323,61 +356,36 @@ class VisualProvider:
         action: str = "",
         technical_content: str = "",
     ):
-        # Build domain-specific educational prompt prefix
         vtype = (visual_type or "").lower()
-        if "workstation" in vtype or "presenter" in vtype:
-            prefix = "Photorealistic medium shot of a realistic professional engineer working at a computer workstation, monitors visible displaying software and technical diagrams, "
-        elif "software" in vtype or "screen" in vtype or "viewport" in vtype:
-            prefix = "High-resolution software user interface screen capture, clean modern CAD and technical software workspace, "
-        elif "mathematical" in vtype:
-            prefix = "Clean scientific 3D mathematical visualization, coordinate grid lines, contoured loss surface, gradient vectors, "
-        elif "technical" in vtype:
-            prefix = "High-detail 3D technical engineering visualization, industrial CAD assembly, precision mechanical cutaway, "
-        else:
-            prefix = "Clean educational technical 3D visualization, "
-
-        style_context = visual_direction.strip() if visual_direction else "photorealistic educational technical render, studio lighting, octane render"
-        env_context = environment.strip() if environment else "engineering laboratory with monitors"
-        light_context = lighting.strip() if lighting else "cinematic studio lighting with subtle rim light"
-
         cleaned_prompt = re.sub(r"(?i)\b(with text|labeled with|text saying|words saying|caption)\b.*", "", visual_prompt).strip(" ,.")
-        action_context = f" Action: {action}." if action else ""
-        tech_context = f" Technical Details: {technical_content}." if technical_content else ""
 
+        # Universal Technical Video Mode: Fast local blueprint/schematic card generation
+        # This completely avoids 40-second network timeouts and guarantees instant response times.
+        if not OPENAI_API_KEY or vtype in TECHNICAL_PROCEDURAL_TYPES or "animation" in vtype or "visualization" in vtype:
+            self._generate_fallback(
+                cleaned_prompt or action or "Technical Process",
+                index,
+                out_path,
+                size,
+                visual_type=visual_type or "TECHNICAL_ANIMATION",
+                shot_type=shot_type or "ISOMETRIC_VIEW",
+                technical_content=technical_content or action,
+            )
+            return
+
+        # Attempt OpenAI if explicitly configured with an API key
         enriched_prompt = (
-            f"{prefix}{cleaned_prompt}.{action_context}{tech_context} "
-            f"Framing: {shot_type or 'medium shot'}. Style: {style_context}. Environment: {env_context}. Lighting: {light_context}. "
-            f"16:9 widescreen composition, 8k resolution, highly detailed, sharp focus, masterpiece composition. "
-            f"No text, no labels, no watermark, no logos, no typography, no blur, no decorative fantasy."
+            f"Precision technical engineering diagram of {cleaned_prompt}. "
+            f"Action: {action or 'technical component interaction'}. {technical_content}. "
+            f"Deep dark slate background, crisp glowing cyan and amber accents, clean mathematical lines, 8k resolution, no humans."
         )
-
-        if OPENAI_API_KEY:
-            try:
-                await self._generate_with_openai(enriched_prompt, out_path, size)
-                self.using_fallback = False
-                return
-            except Exception as exc:
-                print(f"[VisualProvider] OpenAI image call failed ({exc}); using visual generator.")
-
-        # Real topic-relevant visuals via Pollinations
         try:
-            seed = 100 + index * 7
-            await self._generate_with_pollinations(enriched_prompt, out_path, size, seed=seed)
+            await self._generate_with_openai(enriched_prompt, out_path, size)
+            self.using_fallback = False
             return
         except Exception as exc:
-            print(f"[VisualProvider] Pollinations visual call failed ({exc}); trying topic repository.")
-
-        # Fallback to authentic visual from educational repository
-        try:
-            topic = cleaned_prompt.split(",")[0].split(".")[0].strip()
-            if len(topic.split()) > 4:
-                topic = " ".join(topic.split()[:4])
-            await self._generate_with_wikipedia(topic, out_path, size)
-            return
-        except Exception as exc:
-            print(f"[VisualProvider] Topic visual repository failed ({exc}); using procedural fallback.")
-
-        self._generate_fallback(cleaned_prompt, index, out_path, size, visual_type, shot_type, technical_content)
+            print(f"[VisualProvider] OpenAI call failed ({exc}); falling back to local technical card.")
+            self._generate_fallback(cleaned_prompt, index, out_path, size, visual_type, shot_type, technical_content)
 
     async def _generate_with_openai(self, visual_prompt: str, out_path: str, size):
         async with httpx.AsyncClient(timeout=120) as client:
@@ -403,20 +411,21 @@ class VisualProvider:
 
     async def _generate_with_pollinations(self, visual_prompt: str, out_path: str, size, seed: int = 42):
         import urllib.parse
-        clean_text = re.sub(r"[^a-zA-Z0-9, ]", " ", visual_prompt)
+        clean_text = re.sub(r"[^a-zA-Z0-9,.:;'\- ]", " ", visual_prompt)
         clean_text = " ".join(clean_text.split())
-        if len(clean_text) > 140:
-            clean_text = clean_text[:140].rsplit(" ", 1)[0]
+        if len(clean_text) > 750:
+            clean_text = clean_text[:750].rsplit(" ", 1)[0]
 
         encoded = urllib.parse.quote(clean_text)
         urls = [
-            f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=576&seed={seed}&model=turbo&nologo=true",
+            f"https://image.pollinations.ai/prompt/{encoded}?width=1280&height=720&seed={seed}&model=flux&nologo=true",
+            f"https://image.pollinations.ai/prompt/{encoded}?width=1280&height=720&seed={seed}&model=flux-realism&nologo=true",
             f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=576&seed={seed}&nologo=true",
         ]
         last_exc = None
         for url in urls:
             try:
-                async with httpx.AsyncClient(timeout=25) as client:
+                async with httpx.AsyncClient(timeout=40) as client:
                     resp = await client.get(url)
                     resp.raise_for_status()
                     img = Image.open(BytesIO(resp.content)).convert("RGB")

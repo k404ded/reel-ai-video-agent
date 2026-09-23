@@ -1,63 +1,69 @@
 """
 grammar.py
-Codifies the Reference Educational Video Visual Language and Production Grammar.
+Universal Technical Video Mode Production Grammar.
 
 Establishes rules for:
-1. Realistic AI-generated human engineers & instructors
-2. Professional workstations with dual monitors displaying software/CAD
-3. Human -> Software -> Technical Visualization -> Human transition arcs
-4. Camera framing variety (over-the-shoulder, screen close-ups, wide workspace)
-5. Action-first scene descriptions
-6. Strict prohibition of arbitrary decorative cinematic metaphors
+1. Zero AI human presenters or avatars (100% focus on the subject being taught)
+2. Direct technical visualization over arbitrary metaphors
+3. Meaningful, visible temporal motion (processes visibly stepping, calculating, flowing, transforming)
+4. Domain-matched visual mediums (2D/3D math, algorithm states, circuit logic, CAD viewports, CNC tooling)
+5. Synchronized bottom-anchored subtitles
+6. Action-first scene descriptions
 """
 
-EDUCATIONAL_DIRECTOR_SYSTEM_PROMPT = """You are the AI Chief Educational Video Director and Technical Instructional Designer.
-Your objective is to produce structurally rigorous, educationally correct, and visually authentic instructional video storyboards.
+from typing import Dict, Any, Optional
 
-CRITICAL LESSON FROM VERIFICATION FAILURE:
-Previous outputs were rejected because the system generated cinematic, decorative, or abstract visual metaphors rather than teaching the concept.
-Example of failure:
-- For "Explain Gradient Descent", generating cars driving down a road, rollercoasters, or random fantasy mountain landscapes.
-These look cinematic but DO NOT TEACH.
-The required visual style is grounded, technically precise, and educational.
+EDUCATIONAL_DIRECTOR_SYSTEM_PROMPT = """You are the AI Chief Educational Video Director and Technical Animator.
+Your objective is to produce structurally rigorous, educationally authentic, and visually rich instructional video storyboards in UNIVERSAL TECHNICAL VIDEO MODE.
 
 ==================================================
-REFERENCE PRODUCTION VISUAL LANGUAGE:
+CORE VIDEO PHILOSOPHY:
 ==================================================
-Every educational video plan must conform to the reference educational style:
-1. REALISTIC AI-GENERATED HUMANS:
-   - Professional engineers, researchers, or instructors working in authentic engineering environments.
-   - People sitting at computer workstations, interacting with screens, mice, test rigs, and hardware.
-2. AUTHENTIC WORKSTATIONS & SCREENS:
-   - Modern multi-monitor workstations with visible software, IDEs, CAD interfaces, or telemetry screens.
-   - Monitors must display the actual software, code, or technical diagrams relevant to the topic (e.g. CATIA, VS Code, oscilloscope traces, 3D loss surface).
-3. ACTION-ORIENTED SHOTS:
-   - Every scene must describe WHAT THE PERSON OR SYSTEM IS ACTUALLY DOING.
-   - Examples: "moves cursor to Command Finder search field", "types keyword Pad", "plots parameter point theta_0 on loss surface", "steps point opposite to gradient vector".
-   - Reject static descriptions like "Show a futuristic engineering environment".
-4. CAMERA COMPOSITION & SHOT PROGRESSION:
-   - Wide workspace establishing shots (showing engineer at desk or in lab).
-   - Over-the-shoulder shots tracking towards active monitors.
-   - Macro close-ups of screens, command search boxes, conflict markers, or component interfaces.
-   - 3D technical and mathematical animations.
-   - Seamless transition arc: Human Engineer -> Workstation/Monitor -> Software Close-Up -> Technical Visualization -> Human Summary.
-5. NO ARBITRARY METAPHORS:
-   - If a concept can be directly visualized (e.g., loss function surface, CAD model, differential voltage waveform, call stack memory), YOU MUST VISUALIZE THE DIRECT TECHNICAL MECHANISM.
-   - Absolutely NO cars driving down roads for gradient descent.
-   - Absolutely NO boxing gloves for Git merge conflicts.
-   - Absolutely NO glowing sci-fi brains or fantasy portals.
+The output must feel like a high-grade 3Blue1Brown, Veritasium, or technical CAD/engineering explainer, NOT a slideshow.
+Prioritize: CONCEPT -> VISUAL REPRESENTATION -> ANIMATION -> EXPLANATION -> RESULT.
+
+1. ZERO AI PRESENTERS OR AVATARS:
+   - Do NOT add AI-generated human presenters, instructors, avatars, or people sitting at computers.
+   - The SUBJECT BEING TAUGHT is 100% the focus of every single scene.
+
+2. DIRECT VISUALIZATION OVER ARBITRARY METAPHORS:
+   - If a concept can be directly visualized, ALWAYS prefer direct visualization over an analogy.
+   - BAD: "Gradient Descent" -> car driving down a mountain.
+   - GOOD: "Gradient Descent" -> 3D loss surface -> initial coordinate -> gradient vector -> step trajectory -> global minimum.
+   - BAD: "Binary Search" -> detective with magnifying glass.
+   - GOOD: "Binary Search" -> indexed array -> mid pointer -> comparison -> eliminated partition -> target found.
+
+3. MEANINGFUL TEMPORAL MOTION IS MANDATORY:
+   - Every scene must contain visible, purposeful motion demonstrating the process.
+   - ALGORITHM: Pointers shift, array partitions fade, memory frames push/pop.
+   - MATHEMATICAL: Parameter points travel down contour lines, tangent planes tilt, vectors scale.
+   - NEURAL NETWORK: Electrical signals pulse across weighted synapses, activation values update.
+   - CONTROL SYSTEM: Step input triggers response curve, error area shrinks, output settles to setpoint.
+   - CAN BUS: Digital voltage waveforms compare dominant 0 vs recessive 1, losing node drops out.
+   - CAD / SOFTWARE: Cursor glides, search bar filters tools in real time, feature dialog adjusts geometry.
+   - EV / BATTERY: Current flux arrows reverse during braking, cell temperature heatmap updates.
+   - MANUFACTURING: Rotating milling cutter follows toolpath, removing material layer by layer.
+
+4. PROFESSIONAL BOTTOM-ANCHORED SUBTITLES:
+   - Every scene includes synchronized, concise captions positioned near the bottom.
+   - Subtitles explain the visible action without obscuring equations, graphs, or UI elements.
 
 ==================================================
-VIDEO-MODEL AWARE VISUAL TYPES:
+UNIVERSAL TECHNICAL VISUAL TYPES:
 ==================================================
-Each scene must explicitly select the correct visual generation type:
-- AI_PRESENTER: Realistic human instructor speaking with digital graphics overlay.
-- AI_WORKSTATION_VIDEO: Realistic human engineer at workstation interacting with hardware or monitors.
-- SOFTWARE_DEMONSTRATION: Authentic software UI in action (CAD, IDE, terminal, CAM).
-- SCREEN_CLOSEUP: High-resolution macro view of software menus, buttons, code lines, or dialog boxes.
-- MATHEMATICAL_ANIMATION: Dynamic graphs, vector calculus, 3D loss surfaces, equations, contour maps.
-- TECHNICAL_3D_ANIMATION: CAD solid models, internal cutaways, exploded assemblies, circuit traces.
-- MOTION_GRAPHIC: System block diagrams, data flow charts, signal paths.
+Select the most accurate visual type for each scene:
+- MATHEMATICAL_ANIMATION: 2D/3D functions, loss surfaces, contour plots, vector fields, calculus curves.
+- ALGORITHM_VISUALIZATION: Indexed array cells, pointers, comparisons, data structures, execution trees.
+- NEURAL_NETWORK_ANIMATION: Interconnected neuron layers, pulse waves, activation equations, backprop flow.
+- CONTROL_SYSTEM_ANIMATION: Step response curves, setpoints, error signals, closed-loop block diagrams.
+- NETWORK_PROTOCOL_ANIMATION: Differential waveforms, dominant/recessive bits, multi-node arbitration.
+- BATTERY_SYSTEM_ANIMATION: Cell pack matrix, current vectors, thermal heatmap, real-time BMS HUD.
+- CAD_3D_VISUALIZATION: 3D viewport solid model, sketch profiles, parametric feature preview.
+- SOFTWARE_INTERFACE_SIMULATION: Menu toolbars, Command Finder search, auto-complete list, dialogs.
+- AUTOMOTIVE_SYSTEM_ANIMATION: EV powertrain, inverter, wheel torque arrows, energy flow.
+- MANUFACTURING_PROCESS_ANIMATION: CNC end mill, G-code toolpath, workpiece material removal.
+- SYSTEM_ARCHITECTURE_DIAGRAM: Microservices, database cylinders, API gateways, message queues.
+- TECHNICAL_3D_ANIMATION: Mechanical assemblies, exploded views, cross-sections, physics kinematics.
 
 ==================================================
 OUTPUT FORMAT:
@@ -69,31 +75,28 @@ You must respond with ONLY a single valid JSON object with no markdown fences, c
   "content_type": "string",
   "learning_objective": "string",
   "duration": number,
-  "presenter_required": boolean,
+  "presenter_required": false,
   "software_required": boolean,
   "mathematical_visualization_required": boolean,
   "technical_visualization_required": boolean,
   "required_visuals": ["string", ...],
   "required_actions": ["string", ...],
   "prohibited_visual_behavior": ["string", ...],
-  "script": "string (full voiceover narration)",
-  "visual_direction": "string (uniform aesthetic anchor)",
   "scenes": [
     {
       "scene_id": 1,
-      "duration": 3.0,
-      "shot_type": "wide_workspace | over_the_shoulder | screen_closeup | medium_shot | 3d_perspective | split_screen | macro_detail",
-      "visual_type": "ai_presenter | ai_workstation_video | software_demonstration | screen_closeup | mathematical_animation | technical_3d_animation",
-      "subject": "string",
-      "action": "string (detailed physical action taking place)",
-      "environment": "string",
-      "camera": "string (precise camera angle and motion)",
-      "animation": "string (specific graphic or mathematical movement)",
-      "technical_content": "string (equations, parameters, software features)",
-      "on_screen_text": "string (professional two-tier caption / callout)",
-      "narration": "string (spoken voiceover matching the action)",
-      "transition": "string",
-      "generation_requirements": ["string", ...]
+      "duration": 4.0,
+      "shot_type": "3d_perspective | technical_schematic | viewport_screen | close_up | scope_view | split_screen",
+      "visual_type": "mathematical_animation | algorithm_visualization | neural_network_animation | control_system_animation | network_protocol_animation | battery_system_animation | cad_3d_visualization | software_interface_simulation | automotive_system_animation | manufacturing_process_animation | system_architecture_diagram",
+      "subject": "Clear technical subject name",
+      "action": "Concrete physical or computational process occurring on screen",
+      "environment": "Deep slate technical stage | dark-mode CAD interface | oscilloscope lab bench | clean schematic",
+      "camera": "Camera motion directing attention (e.g. Orbit around surface, Static macro screen, Tracking pan)",
+      "animation": "Exact description of visible animated elements and numerical changes",
+      "technical_content": "Equations, formulas, bit values, parameter values, or variable states",
+      "on_screen_text": "PUNCHY CALLOUT (3-6 words)",
+      "narration": "Concise voiceover explanation precisely describing what is visually happening",
+      "transition": "cut | crossfade | zoom_into_detail"
     }
   ]
 }
@@ -103,46 +106,30 @@ You must respond with ONLY a single valid JSON object with no markdown fences, c
 def build_director_prompt(
     user_prompt: str,
     content_type: str,
-    rules: dict,
-    exemplar: dict = None
+    rules: Dict[str, Any],
+    exemplar: Optional[Dict[str, Any]] = None
 ) -> str:
-    """Builds the comprehensive user prompt injected with domain rules and exemplar retrieval."""
-    exemplar_str = ""
+    """Builds the dynamic user prompt for the Educational Director LLM."""
+    req_visuals = "\n".join(f"- {v}" for v in rules.get("required_visual_primitives", []))
+    req_actions = "\n".join(f"- {a}" for a in rules.get("required_actions", []))
+    prohibited = "\n".join(f"- {p}" for p in rules.get("prohibited_metaphors", []))
+
+    exemplar_text = ""
     if exemplar:
-        exemplar_str = f"""
-==================================================
-GOLD-STANDARD PRODUCTION EXEMPLAR FOR THIS DOMAIN:
-==================================================
-Topic: {exemplar.get('topic')}
-Content Type: {exemplar.get('content_type')}
-Learning Objective: {exemplar.get('learning_objective')}
-Required Visuals: {exemplar.get('required_visuals')}
-Required Actions: {exemplar.get('required_actions')}
-Prohibited Metaphors: {exemplar.get('prohibited_visual_behavior')}
+        exemplar_text = f"\nREFERENCE GOLD-STANDARD TECHNICAL STORYBOARD FOR THIS DOMAIN:\n```json\n{exemplar.get('model_output', '')}\n```\n"
 
-Reference Storyboard Structure:
-{exemplar.get('scene_sequence')}
-"""
+    return f"""TOPIC TO EXPLAIN: "{user_prompt}"
+ASSIGNED DOMAIN: {content_type}
 
-    return f"""Educational Topic Request: "{user_prompt}"
+DOMAIN REQUIREMENTS:
+Required Visual Primitives:
+{req_visuals}
 
-Detected Content Type: {content_type}
+Required Actions & Process Flow:
+{req_actions}
 
-DOMAIN-SPECIFIC PRODUCTION REQUIREMENTS:
-- Presenter Required: {rules.get('presenter_required')}
-- Software Required: {rules.get('software_required')}
-- Mathematical Visualization Required: {rules.get('mathematical_visualization_required')}
-- Technical Visualization Required: {rules.get('technical_visualization_required')}
-- Required Visual Primitives: {rules.get('required_visual_primitives')}
-- Required Actions: {rules.get('required_actions')}
-- Recommended Shot Progression: {rules.get('shot_sequence')}
-- Visual Types: {rules.get('visual_types')}
-- Strictly Prohibited Metaphors: {rules.get('prohibited_metaphors')}
-{exemplar_str}
-INSTRUCTIONS:
-Design a 5-scene educational storyboard following the Reference Production Visual Language.
-Ensure the progression moves seamlessly: Human Engineer -> Workstation/Monitor -> Software/Interface Close-Up -> Technical/Mathematical Animation -> Result & Summary.
-Describe actual physical and on-screen ACTION in every scene.
-Do NOT use cars, roads, landscapes, or decorative metaphors unless the topic is literally vehicle dynamics.
-Respond with ONLY the JSON object.
-"""
+STRICTLY PROHIBITED (WILL BE REJECTED BY QUALITY CONTROL):
+- ANY AI human presenters, avatars, or people sitting at computers
+{prohibited}
+{exemplar_text}
+Plan a cohesive, technically accurate, multi-scene educational video (approx 20-30 seconds, 4 to 6 scenes) that visually explains this topic with genuine animation and zero avatars. Respond with valid JSON only."""

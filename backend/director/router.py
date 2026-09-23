@@ -1,8 +1,9 @@
 """
 router.py
-Content-Type Classifier and Production Specification Router.
-Classifies educational topics into the 8 core domains and injects domain-specific
-visual primitives, required actions, camera sequences, and prohibited metaphors.
+Universal Technical Video Mode Router and Classifier.
+Classifies educational and engineering topics into specialized technical domains
+and injects domain-specific visual primitives, required actions, camera sequences,
+and prohibited metaphors. Strictly bans AI human presenters and avatars across all domains.
 """
 
 import re
@@ -12,336 +13,419 @@ from .storyboard import ContentType, VisualType, ShotType
 
 CATEGORY_RULES: Dict[str, Dict[str, Any]] = {
     ContentType.MATHEMATICAL_CONCEPT.value: {
-        "presenter_required": True,
+        "presenter_required": False,
         "mathematical_visualization_required": True,
         "software_required": False,
         "technical_visualization_required": True,
         "required_visual_primitives": [
             "coordinate axes and mathematical function curves or 3D surfaces",
-            "active parameter points moving in coordinate space",
-            "directional vectors, tangents, and gradient arrows",
-            "mathematical LaTeX equations with synchronized term highlights",
+            "active parameter points moving in coordinate space with projection drop-lines",
+            "directional vectors, local tangent planes, and gradient arrows (nabla J)",
+            "mathematical LaTeX equations with synchronized term highlights and live HUD",
             "contour elevation maps and numerical convergence readouts"
         ],
         "required_actions": [
-            "instructor frames the optimization / mathematical problem",
-            "plot initial parameter coordinates or input variables",
+            "plot continuous 3D/2D objective error surface or mathematical curve",
+            "place initial parameter coordinate with coordinate droplines",
             "calculate rate of change, gradient vector, or functional transformation",
             "animate step-by-step parameter trajectory moving toward solution",
             "display formula and show convergence at target minimum or limit"
         ],
         "shot_sequence": [
-            ShotType.MEDIUM_SHOT.value,
             ShotType.PERSPECTIVE_3D.value,
             ShotType.CLOSE_UP.value,
+            ShotType.PERSPECTIVE_3D.value,
             ShotType.SPLIT_SCREEN.value,
-            ShotType.MEDIUM_SHOT.value,
+            ShotType.PERSPECTIVE_3D.value,
         ],
         "visual_types": [
-            VisualType.AI_PRESENTER.value,
             VisualType.MATHEMATICAL_ANIMATION.value,
             VisualType.MATHEMATICAL_ANIMATION.value,
             VisualType.MATHEMATICAL_ANIMATION.value,
-            VisualType.AI_PRESENTER.value,
+            VisualType.MATHEMATICAL_ANIMATION.value,
+            VisualType.MATHEMATICAL_ANIMATION.value,
         ],
         "prohibited_metaphors": [
+            "AI avatars, human presenters, people sitting at desks",
             "car or vehicle driving down roads or highways",
             "rollercoaster or ski slope",
             "random natural mountain landscapes or hiking trails",
-            "rolling physical balls down real-world terrain",
-            "fantasy portals or magical glowing orbs"
+            "rolling physical balls down real-world terrain"
         ]
     },
 
-    ContentType.CAD_TUTORIAL.value: {
-        "presenter_required": True,
+    ContentType.ALGORITHM.value: {
+        "presenter_required": False,
         "mathematical_visualization_required": False,
         "software_required": True,
         "technical_visualization_required": True,
         "required_visual_primitives": [
-            "mechanical engineer sitting at dual-monitor CAD workstation",
-            "CAD software interface (e.g. CATIA, SolidWorks, Fusion 360)",
-            "specification feature tree, workbench toolbars, and action bar",
-            "screen close-up of command search / power input tool",
-            "mouse cursor interacting with software icons and dialogs",
-            "3D mechanical CAD geometry rendering in active viewport"
+            "sequential array memory cells with integer index labels",
+            "colored pointer markers (e.g. low, mid, high) tracking algorithm state",
+            "highlighted comparison values and conditional evaluation badges",
+            "grayed-out eliminated search partitions or sorted sub-lists",
+            "target match confirmation ring with step counter HUD"
         ],
         "required_actions": [
-            "show engineer at workstation navigating 3D CAD model",
-            "pan camera over engineer shoulder to monitor display",
-            "move cursor to command search field or toolbar",
-            "type keyword query and show live auto-complete filtering",
-            "click selected command and execute feature on 3D geometry"
+            "render full sorted array with initial boundaries and target query",
+            "compute midpoint index (mid = (low + high) // 2) and highlight comparison",
+            "evaluate comparison and discard irrelevant half with visual fade",
+            "re-position boundary pointers to remaining active interval",
+            "settle on exact target index with green success badge"
         ],
         "shot_sequence": [
-            ShotType.WIDE_WORKSPACE.value,
-            ShotType.OVER_THE_SHOULDER.value,
-            ShotType.SCREEN_CLOSEUP.value,
-            ShotType.VIEWPORT_SCREEN.value,
-            ShotType.MEDIUM_SHOT.value,
-        ],
-        "visual_types": [
-            VisualType.AI_WORKSTATION_VIDEO.value,
-            VisualType.SOFTWARE_DEMONSTRATION.value,
-            VisualType.SCREEN_CLOSEUP.value,
-            VisualType.SOFTWARE_DEMONSTRATION.value,
-            VisualType.AI_WORKSTATION_VIDEO.value,
-        ],
-        "prohibited_metaphors": [
-            "futuristic floating holographic spaceships",
-            "abstract magical wand tool metaphors",
-            "corporate generic suits shaking hands",
-            "unrelated spreadsheets or non-CAD software",
-            "omitting the CAD user interface and menus"
-        ]
-    },
-
-    ContentType.SOFTWARE_TUTORIAL.value: {
-        "presenter_required": True,
-        "mathematical_visualization_required": False,
-        "software_required": True,
-        "technical_visualization_required": True,
-        "required_visual_primitives": [
-            "software developer at modern multi-monitor coding workstation",
-            "IDE code editor or command terminal with authentic syntax",
-            "screen close-up of menu items, buttons, or conflict markers",
-            "cursor clicks and active keyboard text input",
-            "result output terminal, compiler status, or UI preview"
-        ],
-        "required_actions": [
-            "developer introduces software task at computer terminal",
-            "navigate to active application screen or code file",
-            "demonstrate precise button clicks, key shortcuts, or commands",
-            "observe software state update or error resolution",
-            "verify success state in output window or terminal"
-        ],
-        "shot_sequence": [
-            ShotType.WIDE_WORKSPACE.value,
-            ShotType.OVER_THE_SHOULDER.value,
-            ShotType.SCREEN_CLOSEUP.value,
-            ShotType.SCREEN_CLOSEUP.value,
-            ShotType.MEDIUM_SHOT.value,
-        ],
-        "visual_types": [
-            VisualType.AI_WORKSTATION_VIDEO.value,
-            VisualType.SOFTWARE_DEMONSTRATION.value,
-            VisualType.SCREEN_CLOSEUP.value,
-            VisualType.SOFTWARE_DEMONSTRATION.value,
-            VisualType.AI_WORKSTATION_VIDEO.value,
-        ],
-        "prohibited_metaphors": [
-            "boxing gloves or fighting animations for merge conflicts",
-            "train wrecks or explosions for software bugs",
-            "generic matrix digital rain",
-            "abstract glowing cubes colliding in space",
-            "avoiding the actual software interface"
-        ]
-    },
-
-    ContentType.PROGRAMMING_TUTORIAL.value: {
-        "presenter_required": True,
-        "mathematical_visualization_required": False,
-        "software_required": True,
-        "technical_visualization_required": True,
-        "required_visual_primitives": [
-            "software engineer at development workstation",
-            "IDE code editor showing syntax-highlighted source functions",
-            "memory layout diagram (call stack, heap, pointers, registers)",
-            "step-by-step debugger breakpoint highlighting executing line",
-            "variable state changes and console terminal output"
-        ],
-        "required_actions": [
-            "programmer writes or steps into algorithm in IDE",
-            "push stack frame or allocate memory structure",
-            "evaluate branching conditional logic or loop termination",
-            "propagate return values and pop memory frames in order",
-            "print final verified execution output in console"
-        ],
-        "shot_sequence": [
-            ShotType.OVER_THE_SHOULDER.value,
+            ShotType.TECHNICAL_SCHEMATIC.value,
+            ShotType.CLOSE_UP.value,
             ShotType.SPLIT_SCREEN.value,
-            ShotType.SCREEN_CLOSEUP.value,
-            ShotType.SPLIT_SCREEN.value,
-            ShotType.MEDIUM_SHOT.value,
+            ShotType.CLOSE_UP.value,
+            ShotType.TECHNICAL_SCHEMATIC.value,
         ],
         "visual_types": [
-            VisualType.AI_WORKSTATION_VIDEO.value,
-            VisualType.SOFTWARE_DEMONSTRATION.value,
-            VisualType.SCREEN_CLOSEUP.value,
-            VisualType.MATHEMATICAL_ANIMATION.value,
-            VisualType.AI_WORKSTATION_VIDEO.value,
+            VisualType.ALGORITHM_VISUALIZATION.value,
+            VisualType.ALGORITHM_VISUALIZATION.value,
+            VisualType.ALGORITHM_VISUALIZATION.value,
+            VisualType.ALGORITHM_VISUALIZATION.value,
+            VisualType.ALGORITHM_VISUALIZATION.value,
         ],
         "prohibited_metaphors": [
-            "nesting Russian dolls instead of real memory stack frames",
-            "hall of mirrors infinity visual effect",
-            "bottomless pit or rabbit hole cartoons",
-            "unrelated cartoon characters",
-            "matrix green code falling without syntax or memory"
+            "AI avatars, human presenters, people sitting at desks",
+            "detective looking through magnifying glass",
+            "physical library book searching",
+            "magic sorting wands or hats",
+            "static code screenshots without animated pointer execution"
         ]
     },
 
-    ContentType.TECHNICAL_CONCEPT.value: {
-        "presenter_required": True,
+    ContentType.MACHINE_LEARNING.value: {
+        "presenter_required": False,
         "mathematical_visualization_required": True,
         "software_required": False,
         "technical_visualization_required": True,
         "required_visual_primitives": [
-            "AI technical instructor or research scientist",
-            "matrix numerical arrays, tensor layers, or architectural diagrams",
-            "sliding operational windows (convolution kernels, pooling, attention maps)",
-            "layer-by-layer feature transformations and activations",
-            "output probability distributions or metrics"
+            "multi-layer neural network architecture (Input, Hidden, Output nodes)",
+            "interconnecting synaptic lines weighted by thickness and color",
+            "forward propagating electrical pulse wavefronts across layers",
+            "mathematical node activation formula (sigma(Wx+b)) with live telemetry",
+            "backward error flow and loss gradient weight updates"
         ],
         "required_actions": [
-            "instructor frames the technical architecture or model",
-            "pass input data through mathematical transformation block",
-            "animate localized receptive field operation across input data",
-            "aggregate multi-channel feature maps into compact representations",
-            "output final decision or classification state"
+            "display deep neural network graph topology with labeled layers",
+            "feed input feature vector and propagate activations forward through weights",
+            "calculate non-linear activation function at hidden layer neurons",
+            "generate output prediction and compute loss with respect to ground truth",
+            "backpropagate error gradients and adjust synaptic connection weights"
         ],
         "shot_sequence": [
-            ShotType.MEDIUM_SHOT.value,
-            ShotType.MACRO_DETAIL.value,
             ShotType.PERSPECTIVE_3D.value,
             ShotType.CLOSE_UP.value,
             ShotType.SPLIT_SCREEN.value,
+            ShotType.TECHNICAL_SCHEMATIC.value,
+            ShotType.PERSPECTIVE_3D.value,
         ],
         "visual_types": [
-            VisualType.AI_PRESENTER.value,
-            VisualType.MATHEMATICAL_ANIMATION.value,
-            VisualType.TECHNICAL_3D_ANIMATION.value,
-            VisualType.MATHEMATICAL_ANIMATION.value,
-            VisualType.TECHNICAL_3D_ANIMATION.value,
+            VisualType.NEURAL_NETWORK_ANIMATION.value,
+            VisualType.NEURAL_NETWORK_ANIMATION.value,
+            VisualType.NEURAL_NETWORK_ANIMATION.value,
+            VisualType.NEURAL_NETWORK_ANIMATION.value,
+            VisualType.NEURAL_NETWORK_ANIMATION.value,
         ],
         "prohibited_metaphors": [
+            "AI avatars, human presenters, people sitting at desks",
             "glowing sci-fi human brains thinking",
-            "cars driving through circuit boards",
-            "abstract cosmic light beams",
-            "random particle storms without data matrices",
+            "cosmic laser particle storms",
+            "circuits turning into biological neurons",
+            "disconnected abstract cubes"
+        ]
+    },
+
+    ContentType.CONTROL_SYSTEM.value: {
+        "presenter_required": False,
+        "mathematical_visualization_required": True,
+        "software_required": False,
+        "technical_visualization_required": True,
+        "required_visual_primitives": [
+            "closed-loop block diagram (Setpoint, Summing Junction, PID, Plant, Feedback)",
+            "real-time oscilloscope step response curve tracking target setpoint",
+            "error signal curve e(t) = r(t) - y(t) with shaded deficit area",
+            "proportional (Kp*e), integral (Ki*int e), and derivative (Kd*de/dt) vector telemetry",
+            "damped harmonic response curve settling cleanly at steady state"
+        ],
+        "required_actions": [
+            "introduce step setpoint input and observe instantaneous error signal",
+            "demonstrate aggressive proportional response driving the actuator",
+            "show integral term eliminating steady-state offset over time",
+            "show derivative term damping rate of change to prevent overshoot",
+            "stabilize system output on setpoint line with minimal settling time"
+        ],
+        "shot_sequence": [
+            ShotType.TECHNICAL_SCHEMATIC.value,
+            ShotType.SCOPE_VIEW.value,
+            ShotType.SPLIT_SCREEN.value,
+            ShotType.SCOPE_VIEW.value,
+            ShotType.TECHNICAL_SCHEMATIC.value,
+        ],
+        "visual_types": [
+            VisualType.CONTROL_SYSTEM_ANIMATION.value,
+            VisualType.CONTROL_SYSTEM_ANIMATION.value,
+            VisualType.CONTROL_SYSTEM_ANIMATION.value,
+            VisualType.CONTROL_SYSTEM_ANIMATION.value,
+            VisualType.CONTROL_SYSTEM_ANIMATION.value,
+        ],
+        "prohibited_metaphors": [
+            "AI avatars, human presenters, people sitting at desks",
+            "car steering wheel in traffic",
+            "household thermostat cartoons",
+            "tightrope walker balancing",
             "static disconnected diagrams"
         ]
     },
 
     ContentType.AUTOMOTIVE_PROCESS.value: {
-        "presenter_required": True,
+        "presenter_required": False,
         "mathematical_visualization_required": False,
         "software_required": False,
         "technical_visualization_required": True,
         "required_visual_primitives": [
-            "automotive engineer at vehicle test bench or dyno facility",
-            "electronic control units (ECUs), wire harness, and vehicle powertrain",
-            "multichannel oscilloscope displaying real differential voltage signals",
-            "timing diagrams comparing bit streams and priority fields",
-            "mechanical power delivery (gears, motor-generators, inverters)"
+            "CAN Bus dual-wire differential topology (CAN_H, CAN_L) with multiple nodes",
+            "synchronized digital logic voltage waveforms (Dominant 0 vs Recessive 1)",
+            "bit-by-bit message identifier comparison during arbitration phase",
+            "losing node backing off to listen state upon recessive bit detection",
+            "winning highest-priority frame broadcasting payload across bus"
         ],
         "required_actions": [
-            "engineer inspects vehicle system hardware or test fixture",
-            "initiate physical operation (braking event, message transmission, gear mesh)",
-            "trace electrical or mechanical transmission through components",
-            "resolve conflict, arbitration, or kinetic energy conversion",
-            "measure and display calibrated telemetry output"
+            "illustrate multiple ECUs (Brakes, Engine, Transmission) sharing physical bus",
+            "initiate simultaneous message broadcast creating bus contention",
+            "compare identifier bits synchronously at bit-level resolution",
+            "demonstrate wired-AND behavior where dominant '0' overwrites recessive '1'",
+            "show losing node cease transmission while winning node takes complete bus"
         ],
         "shot_sequence": [
-            ShotType.MEDIUM_ENGINEER.value,
             ShotType.TECHNICAL_SCHEMATIC.value,
-            ShotType.MACRO_DETAIL.value,
+            ShotType.SCOPE_VIEW.value,
             ShotType.CLOSE_UP.value,
-            ShotType.MEDIUM_SHOT.value,
+            ShotType.SCOPE_VIEW.value,
+            ShotType.TECHNICAL_SCHEMATIC.value,
         ],
         "visual_types": [
-            VisualType.AI_WORKSTATION_VIDEO.value,
-            VisualType.TECHNICAL_3D_ANIMATION.value,
-            VisualType.MATHEMATICAL_ANIMATION.value,
-            VisualType.MATHEMATICAL_ANIMATION.value,
-            VisualType.AI_WORKSTATION_VIDEO.value,
+            VisualType.NETWORK_PROTOCOL_ANIMATION.value,
+            VisualType.NETWORK_PROTOCOL_ANIMATION.value,
+            VisualType.NETWORK_PROTOCOL_ANIMATION.value,
+            VisualType.NETWORK_PROTOCOL_ANIMATION.value,
+            VisualType.NETWORK_PROTOCOL_ANIMATION.value,
         ],
         "prohibited_metaphors": [
-            "highway traffic jams or police cars as network metaphors",
-            "cartoon cars talking or smiling",
-            "fantasy energy lightning strikes",
-            "generic stock footage of cars on racetracks without mechanical detail",
-            "skipping electrical and mechanical schematics"
+            "AI avatars, human presenters, people sitting at desks",
+            "traffic intersection with police directing cars",
+            "train station switching tracks",
+            "boxing fight between data packets",
+            "cartoon characters talking"
         ]
     },
 
-    ContentType.ENGINEERING_PROCESS.value: {
-        "presenter_required": True,
+    ContentType.CAD_TUTORIAL.value: {
+        "presenter_required": False,
+        "mathematical_visualization_required": False,
+        "software_required": True,
+        "technical_visualization_required": True,
+        "required_visual_primitives": [
+            "high-definition 3D CAD interface (specification tree, 3D compass, toolbar)",
+            "smooth animated mouse cursor gliding to command tools or search field",
+            "Command Finder search bar typing 'c:Pad' with dynamic auto-complete popup",
+            "parametric feature definition dialog with editable parameter spinboxes",
+            "3D viewport mechanical geometry updating from sketch to extruded solid"
+        ],
+        "required_actions": [
+            "display CAD interface layout and active 3D part geometry in viewport",
+            "glide mouse cursor smoothly to Command Finder in bottom action bar",
+            "type command query and filter matching tools across workbenches in real time",
+            "click matching command and open feature definition dialog window",
+            "execute feature and render 3D parametric solid in viewport"
+        ],
+        "shot_sequence": [
+            ShotType.VIEWPORT_SCREEN.value,
+            ShotType.SCREEN_CLOSEUP.value,
+            ShotType.SCREEN_CLOSEUP.value,
+            ShotType.VIEWPORT_SCREEN.value,
+            ShotType.VIEWPORT_SCREEN.value,
+        ],
+        "visual_types": [
+            VisualType.CAD_3D_VISUALIZATION.value,
+            VisualType.SOFTWARE_INTERFACE_SIMULATION.value,
+            VisualType.SOFTWARE_INTERFACE_SIMULATION.value,
+            VisualType.CAD_3D_VISUALIZATION.value,
+            VisualType.CAD_3D_VISUALIZATION.value,
+        ],
+        "prohibited_metaphors": [
+            "AI avatars, human presenters, people sitting at desks",
+            "floating holographic spaceships",
+            "magic wand tools",
+            "corporate generic handshakes",
+            "omitting the actual software interface"
+        ]
+    },
+
+    ContentType.EV.value: {
+        "presenter_required": False,
         "mathematical_visualization_required": False,
         "software_required": False,
         "technical_visualization_required": True,
         "required_visual_primitives": [
-            "engineer in industrial laboratory, manufacturing plant, or cleanroom",
-            "equipment hardware (CNC mill, battery modules, hydraulic valves, heat exchangers)",
-            "CAD/CAM cross-sections and internal component cutaways",
-            "instrumented measurement readouts (voltages, temperatures, pressures)",
-            "physical process steps occurring in sequential order"
+            "EV powertrain schematic (Battery Pack, Inverter, Traction Motor, Wheels)",
+            "bi-directional energy flux arrows (Acceleration forward vs Braking reverse)",
+            "battery pack internal cell matrix with thermal gradient heatmap",
+            "real-time BMS telemetry HUD (State of Charge %, Voltage, Cell Temp, Current kW)",
+            "kinetic-to-electrical energy conversion with regenerative efficiency gauge"
         ],
         "required_actions": [
-            "engineer introduces industrial process at workstation or machine",
-            "establish coordinate datum, initial state, or input parameters",
-            "execute progressive mechanical or electrochemical transformation",
-            "verify tolerances, clearances, or thermal balance during simulation",
-            "inspect completed physical output conforming to specifications"
+            "display EV powertrain layout and high-voltage electrical architecture",
+            "initiate vehicle deceleration triggering generator mode in traction motor",
+            "invert 3-phase AC voltage to DC charge current through power inverter",
+            "monitor battery cell voltage balancing and thermal distribution across pack",
+            "store recovered energy in battery pack with state-of-charge readout"
         ],
         "shot_sequence": [
-            ShotType.WIDE_WORKSPACE.value,
-            ShotType.SCREEN_CLOSEUP.value,
+            ShotType.TECHNICAL_SCHEMATIC.value,
             ShotType.PERSPECTIVE_3D.value,
+            ShotType.SPLIT_SCREEN.value,
             ShotType.CLOSE_UP.value,
-            ShotType.MEDIUM_SHOT.value,
+            ShotType.TECHNICAL_SCHEMATIC.value,
         ],
         "visual_types": [
-            VisualType.AI_WORKSTATION_VIDEO.value,
-            VisualType.SOFTWARE_DEMONSTRATION.value,
-            VisualType.TECHNICAL_3D_ANIMATION.value,
-            VisualType.TECHNICAL_3D_ANIMATION.value,
-            VisualType.AI_WORKSTATION_VIDEO.value,
+            VisualType.AUTOMOTIVE_SYSTEM_ANIMATION.value,
+            VisualType.BATTERY_SYSTEM_ANIMATION.value,
+            VisualType.AUTOMOTIVE_SYSTEM_ANIMATION.value,
+            VisualType.BATTERY_SYSTEM_ANIMATION.value,
+            VisualType.AUTOMOTIVE_SYSTEM_ANIMATION.value,
         ],
         "prohibited_metaphors": [
-            "action-movie explosions and uncontrolled sparks",
+            "AI avatars, human presenters, people sitting at desks",
+            "car driving down random scenic highway",
+            "cartoon battery with smiling face",
+            "magic lightning bolts",
+            "abstract green eco leaves"
+        ]
+    },
+
+    ContentType.MANUFACTURING.value: {
+        "presenter_required": False,
+        "mathematical_visualization_required": False,
+        "software_required": False,
+        "technical_visualization_required": True,
+        "required_visual_primitives": [
+            "raw stock material block clamped in precision machining fixture",
+            "rotating CNC end mill tool with multi-axis trajectory vectors",
+            "high-speed chip evacuation and progressive pocket milling cutaway",
+            "feed rate, spindle speed (RPM), and depth of cut telemetry readout",
+            "finished precision aerospace bracket with dimensional inspection tolerance lines"
+        ],
+        "required_actions": [
+            "display raw billet stock material and toolpath coordinate reference",
+            "engage rotating milling cutter along programmed G-code path",
+            "perform progressive material removal across roughing and finishing passes",
+            "mill interior pockets and complex contours with coolant spray",
+            "reveal final machined component meeting exact geometric tolerances"
+        ],
+        "shot_sequence": [
+            ShotType.PERSPECTIVE_3D.value,
+            ShotType.CLOSE_UP.value,
+            ShotType.PERSPECTIVE_3D.value,
+            ShotType.CLOSE_UP.value,
+            ShotType.PERSPECTIVE_3D.value,
+        ],
+        "visual_types": [
+            VisualType.MANUFACTURING_PROCESS_ANIMATION.value,
+            VisualType.MANUFACTURING_PROCESS_ANIMATION.value,
+            VisualType.MANUFACTURING_PROCESS_ANIMATION.value,
+            VisualType.MANUFACTURING_PROCESS_ANIMATION.value,
+            VisualType.MANUFACTURING_PROCESS_ANIMATION.value,
+        ],
+        "prohibited_metaphors": [
+            "AI avatars, human presenters, people sitting at desks",
+            "cartoon blacksmith hammering an anvil",
+            "action-movie explosions",
             "magical instant laser melting without physical tooling",
-            "cartoon assembly line robots dancing",
-            "generic hand tools like sledgehammers",
-            "static non-interactive stock imagery"
+            "static non-interactive stock photos"
+        ]
+    },
+
+    ContentType.PROGRAMMING_TUTORIAL.value: {
+        "presenter_required": False,
+        "mathematical_visualization_required": False,
+        "software_required": True,
+        "technical_visualization_required": True,
+        "required_visual_primitives": [
+            "IDE syntax-highlighted function definition with active line execution cursor",
+            "memory layout diagram (Call Stack frames, Heap allocation, pointers)",
+            "recursive branching tree with parameter state badges (e.g. n=4, n=3, n=2)",
+            "base case condition highlight terminating recursive calls",
+            "stack frame popping with return value bubbling up call tree"
+        ],
+        "required_actions": [
+            "display source function in IDE and enter initial invocation",
+            "push new stack frame with local parameters onto call stack",
+            "evaluate branching base condition vs recursive invocation step",
+            "reach base condition and trigger return sequence",
+            "pop stack frames in reverse order, accumulating return value to final result"
+        ],
+        "shot_sequence": [
+            ShotType.TECHNICAL_SCHEMATIC.value,
+            ShotType.SPLIT_SCREEN.value,
+            ShotType.CLOSE_UP.value,
+            ShotType.SPLIT_SCREEN.value,
+            ShotType.TECHNICAL_SCHEMATIC.value,
+        ],
+        "visual_types": [
+            VisualType.ALGORITHM_VISUALIZATION.value,
+            VisualType.ALGORITHM_VISUALIZATION.value,
+            VisualType.ALGORITHM_VISUALIZATION.value,
+            VisualType.ALGORITHM_VISUALIZATION.value,
+            VisualType.ALGORITHM_VISUALIZATION.value,
+        ],
+        "prohibited_metaphors": [
+            "AI avatars, human presenters, people sitting at desks",
+            "Russian nesting dolls instead of call stack frames",
+            "hall of mirrors infinity visual effect",
+            "rabbit hole cartoons",
+            "matrix green code falling without syntax"
         ]
     },
 
     ContentType.GENERAL_EDUCATIONAL.value: {
-        "presenter_required": True,
+        "presenter_required": False,
         "mathematical_visualization_required": True,
         "software_required": False,
         "technical_visualization_required": True,
         "required_visual_primitives": [
-            "engineering instructor in modern laboratory or lecture studio",
-            "system block diagram showing input, plant, feedback, and output",
-            "real-time oscilloscope or telemetry curve tracking setpoint",
+            "system architectural block diagram with active directional signal paths",
             "mathematical transfer functions or physical law formulas",
-            "physical mechanism responding stably to control signals"
+            "dynamic oscilloscope curve or telemetry HUD tracking system response",
+            "animated state machine or operational parameter gauge",
+            "steady-state system output visualization"
         ],
         "required_actions": [
-            "instructor frames the core physical or control challenge",
-            "introduce step disturbance or input stimulus",
-            "calculate corrective signal across system components",
-            "plot dynamic response curve showing rise time and damping",
-            "demonstrate stable steady-state target acquisition"
+            "introduce system topology and fundamental operating parameters",
+            "apply input stimulus, disturbance, or force to system input",
+            "animate dynamic state transition and signal flow across components",
+            "plot time-domain response curve showing settling behavior",
+            "demonstrate stable steady-state target achievement"
         ],
         "shot_sequence": [
-            ShotType.MEDIUM_SHOT.value,
             ShotType.TECHNICAL_SCHEMATIC.value,
+            ShotType.SCOPE_VIEW.value,
             ShotType.SPLIT_SCREEN.value,
             ShotType.SCOPE_VIEW.value,
-            ShotType.MEDIUM_SHOT.value,
+            ShotType.TECHNICAL_SCHEMATIC.value,
         ],
         "visual_types": [
-            VisualType.AI_WORKSTATION_VIDEO.value,
+            VisualType.TECHNICAL_3D_ANIMATION.value,
             VisualType.MATHEMATICAL_ANIMATION.value,
+            VisualType.TECHNICAL_3D_ANIMATION.value,
             VisualType.MATHEMATICAL_ANIMATION.value,
-            VisualType.MATHEMATICAL_ANIMATION.value,
-            VisualType.AI_WORKSTATION_VIDEO.value,
+            VisualType.TECHNICAL_3D_ANIMATION.value,
         ],
         "prohibited_metaphors": [
-            "car steering wheel in traffic as control metaphor",
-            "household thermostat cartoons",
+            "AI avatars, human presenters, people sitting at desks",
+            "car driving down roads",
             "floating fantasy crystal balancing acts",
             "decorative fireworks or light shows",
             "abstract disconnected diagrams"
@@ -351,43 +435,51 @@ CATEGORY_RULES: Dict[str, Dict[str, Any]] = {
 
 
 class ContentTypeRouter:
-    """Classifies user queries into the 8 educational categories and returns production constraints."""
+    """Classifies user queries into the appropriate educational category and returns production constraints."""
 
     @classmethod
     def classify(cls, prompt: str) -> str:
         p = prompt.lower()
 
         # 1. CAD Tutorial
-        if any(w in p for w in ["catia", "solidworks", "creo", "inventor", "autocad", "sketch in cad", "command finder", "cad tutorial", "extrude in cad", "assembly mates"]):
+        if any(w in p for w in ["catia", "solidworks", "creo", "inventor", "autocad", "command finder", "cad tutorial", "extrude in cad", "assembly mates"]):
             return ContentType.CAD_TUTORIAL.value
 
         # 2. Mathematical Concept
         if any(w in p for w in ["gradient descent", "fourier transform", "eigenvalue", "calculus", "linear algebra", "derivative", "differential equation", "loss surface", "convex optimization", "matrix multiplication"]):
             return ContentType.MATHEMATICAL_CONCEPT.value
 
-        # 3. Programming Tutorial
-        if any(w in p for w in ["recursion", "call stack", "binary search", "linked list", "pointer", "memory allocation", "async await", "oop", "algorithm", "data structure", "python function"]):
-            return ContentType.PROGRAMMING_TUTORIAL.value
+        # 3. Algorithms & Data Structures
+        if any(w in p for w in ["binary search", "sorting", "merge sort", "quick sort", "tree traversal", "dijkstra", "breadth first", "depth first", "hash table", "stack and queue"]):
+            return ContentType.ALGORITHM.value
 
-        # 4. Software Tutorial
-        if any(w in p for w in ["git", "merge conflict", "vs code", "github", "docker", "postman", "terminal", "debugger", "ide", "command line"]):
-            return ContentType.SOFTWARE_TUTORIAL.value
+        # 4. Machine Learning & Deep Learning
+        if any(w in p for w in ["neural network", "cnn", "convolutional", "transformer", "backpropagation", "deep learning", "machine learning", "attention mechanism", "activation function"]):
+            return ContentType.MACHINE_LEARNING.value
 
-        # 5. Technical Concept / Machine Learning
-        if any(w in p for w in ["neural network", "cnn", "convolutional", "transformer", "backpropagation", "deep learning", "machine learning", "attention mechanism", "llm", "embedding"]):
-            return ContentType.TECHNICAL_CONCEPT.value
+        # 5. Control Systems & Feedback
+        if any(w in p for w in ["pid", "pid control", "pid controller", "closed-loop", "feedback loop", "transfer function", "bode plot", "state space", "stability"]):
+            return ContentType.CONTROL_SYSTEM.value
 
-        # 6. Automotive Process
-        if any(w in p for w in ["can bus", "regenerative braking", "bldc motor", "electric differential", "powertrain", "ecu", "automotive", "gearbox", "transmission"]):
+        # 6. Automotive & Networking Protocols
+        if any(w in p for w in ["can bus", "can arbitration", "ecu communication", "automotive network", "differential signaling"]):
             return ContentType.AUTOMOTIVE_PROCESS.value
 
-        # 7. Engineering Process / Manufacturing / EV
-        if any(w in p for w in ["bms", "battery management", "cell balancing", "thermal runaway", "cnc", "milling", "injection molding", "pcb", "machining", "toolpath", "manufacturing"]):
-            return ContentType.ENGINEERING_PROCESS.value
+        # 7. Electric Vehicles & Energy Systems
+        if any(w in p for w in ["regenerative braking", "bms", "battery management", "ev battery", "cell balancing", "electric vehicle", "inverter", "traction motor"]):
+            return ContentType.EV.value
 
-        # 8. General Educational (PID, Control Systems, Physics, etc.)
-        if any(w in p for w in ["pid controller", "control system", "feedback loop", "thermodynamics", "heat exchanger", "fluid mechanics"]):
-            return ContentType.GENERAL_EDUCATIONAL.value
+        # 8. Manufacturing & Machining
+        if any(w in p for w in ["manufacturing process", "cnc", "milling", "injection molding", "machining", "toolpath", "lathe", "subtractive manufacturing"]):
+            return ContentType.MANUFACTURING.value
+
+        # 9. Programming & Computer Science
+        if any(w in p for w in ["recursion", "call stack", "pointer", "memory allocation", "async await", "oop", "python function", "programming concept", "garbage collection"]):
+            return ContentType.PROGRAMMING_TUTORIAL.value
+
+        # 10. Software Tutorial & Tools
+        if any(w in p for w in ["git", "merge conflict", "vs code", "github", "docker", "postman", "terminal", "debugger", "ide"]):
+            return ContentType.SOFTWARE_TUTORIAL.value
 
         # Default fallback: General Educational
         return ContentType.GENERAL_EDUCATIONAL.value

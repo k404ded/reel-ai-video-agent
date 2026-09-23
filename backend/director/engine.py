@@ -105,6 +105,11 @@ class EducationalDirectorEngine:
         """
         Main pipeline: Classify -> Retrieve Exemplar -> Build Prompt -> LLM Execution -> Validation & Auto-Correction.
         """
+        return await self._plan_pipeline(user_prompt)
+
+    plan_video = plan_educational_video
+
+    async def _plan_pipeline(self, user_prompt: str) -> EducationalStoryboard:
         # Step 1: Ontology & Content Routing
         content_type = ContentTypeRouter.classify(user_prompt)
         rules = ContentTypeRouter.get_rules(content_type)
@@ -156,7 +161,7 @@ class EducationalDirectorEngine:
         tuned_model = os.getenv("TUNED_PLANNER_MODEL")
         if tuned_model:
             models_to_try.append(tuned_model)
-        models_to_try.extend(["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
+        models_to_try.extend(["gemini-3.6-flash", "gemini-3.7-flash", "gemini-flash-latest"])
 
         full_prompt = f"{EDUCATIONAL_DIRECTOR_SYSTEM_PROMPT}\n\n{prompt_text}"
         payload = {"contents": [{"parts": [{"text": full_prompt}]}]}

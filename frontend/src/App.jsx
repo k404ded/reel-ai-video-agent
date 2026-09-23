@@ -15,9 +15,13 @@ const STAGES = [
 
 const EXAMPLES = [
   "Explain Gradient Descent",
+  "Explain Binary Search",
+  "Explain PID Control",
+  "Explain CAN Bus arbitration",
   "Explain Command Finder in CATIA",
-  "Explain CAN Bus arbitration in automotive networks",
-  "Explain how regenerative braking works in electric vehicles",
+  "Explain EV Regenerative Braking",
+  "Explain Neural Network Backprop",
+  "Explain CNC Milling Toolpaths",
 ];
 
 export default function App() {
