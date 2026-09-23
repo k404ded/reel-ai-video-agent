@@ -36,7 +36,8 @@ class SpecializedFallbackPlanner:
         content_type = ContentTypeRouter.classify(user_prompt)
         rules = ContentTypeRouter.get_rules(content_type)
         topic = extract_topic(user_prompt)
-        t_lower = topic.lower()
+        t_clean = topic.strip() if topic else "System"
+        t_lower = t_clean.lower()
 
         scenes: List[StoryboardScene] = []
 
