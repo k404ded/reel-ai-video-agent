@@ -155,127 +155,32 @@ Respond with ONLY a single JSON object with no markdown fences, strictly conform
 """
 
 
+from director import EducationalDirectorEngine, EducationalStoryboard
+
+
 class LLMProvider:
-    """Wraps whichever LLM backend is configured (Anthropic or Gemini, with local fallback)."""
+    """Specialized Educational Video Director that plans structurally correct educational videos."""
 
     def __init__(self):
-        has_anthropic = bool(ANTHROPIC_API_KEY and not ANTHROPIC_API_KEY.startswith("AQ."))
-        has_gemini = bool(GEMINI_API_KEY)
-        self.using_fallback = not (has_anthropic or has_gemini)
+        self.engine = EducationalDirectorEngine()
+        self.using_fallback = self.engine.using_fallback
 
     async def plan_video(self, user_prompt: str) -> dict:
-        if ANTHROPIC_API_KEY and not ANTHROPIC_API_KEY.startswith("AQ."):
-            try:
-                plan = await self._plan_with_anthropic(user_prompt)
-                self.using_fallback = False
-                return plan
-            except Exception as exc:  # network/key/parse failure -> degrade gracefully
-                print(f"[LLMProvider] Anthropic call failed ({exc}); trying alternative.")
+        storyboard = await self.engine.plan_video(user_prompt)
+        self.using_fallback = self.engine.using_fallback
+        plan = storyboard.to_dict()
 
-        if GEMINI_API_KEY:
-            try:
-                plan = await self._plan_with_gemini(user_prompt)
-                self.using_fallback = False
-                return plan
-            except Exception as exc:
-                print(f"[LLMProvider] Gemini call failed ({exc}); using fallback planner.")
-
-        self.using_fallback = True
-        return self._plan_with_fallback(user_prompt)
-
-    async def _plan_with_anthropic(self, user_prompt: str) -> dict:
-        async with httpx.AsyncClient(timeout=60) as client:
-            resp = await client.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": ANTHROPIC_API_KEY,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                json={
-                    "model": "claude-sonnet-4-6",
-                    "max_tokens": 1800,
-                    "system": PLANNER_SYSTEM_PROMPT,
-                    "messages": [{"role": "user", "content": user_prompt}],
-                },
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            text = "".join(
-                block.get("text", "") for block in data.get("content", []) if block.get("type") == "text"
-            )
-            text = re.sub(r"^```(json)?|```$", "", text.strip(), flags=re.MULTILINE).strip()
-            plan = json.loads(text)
-            return _normalize_plan(plan, user_prompt)
-
-    async def _plan_with_gemini(self, user_prompt: str) -> dict:
-        async with httpx.AsyncClient(timeout=60) as client:
-            last_err = None
-            full_prompt = f"{PLANNER_SYSTEM_PROMPT}\n\nUser Request: {user_prompt}"
-            payload = {"contents": [{"parts": [{"text": full_prompt}]}]}
-
-            for model in ["gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3-flash-preview"]:
-                try:
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
-                    resp = await client.post(url, json=payload)
-                    resp.raise_for_status()
-                    data = resp.json()
-                    text = data["candidates"][0]["content"]["parts"][0]["text"]
-                    text = re.sub(r"^```(json)?|```$", "", text.strip(), flags=re.MULTILINE).strip()
-                    plan = json.loads(text)
-                    return _normalize_plan(plan, user_prompt)
-                except Exception as exc:
-                    last_err = exc
-                    continue
-            raise last_err or RuntimeError("All Gemini models failed")
-
-    def _plan_with_fallback(self, user_prompt: str) -> dict:
-        """
-        Deterministic, dependency-free planner used when no LLM key is
-        configured. Produces domain-appropriate scene specifications.
-        """
-        prompt = user_prompt.strip()
-        duration = _extract_duration(prompt) or 10
-        topic = _extract_topic(prompt)
-        style = "cinematic" if any(w in prompt.lower() for w in ["cinematic", "futuristic", "dramatic"]) else "clean educational"
-        tone = "energetic" if style == "cinematic" else "clear and informative"
-        visual_dir = (
-            "Cinematic photorealistic 3D visualization, volumetric atmospheric lighting, deep contrast, 8k render"
-            if style == "cinematic" else
-            "Clean technical 3D engineering render, dark graphite studio background, metallic reflections, precision lighting"
-        )
-
-        beats = _reason_about_topic(topic, prompt)
-        n = len(beats)
-        base = duration // n
-        remainder = duration - base * n
-        scenes = []
-        for i, beat in enumerate(beats):
-            d = base + (1 if i < remainder else 0)
-            scenes.append(
-                {
-                    "duration": max(d, 1),
-                    "purpose": beat["purpose"],
-                    "visual_prompt": beat["visual"],
-                    "camera_direction": beat["camera"],
-                    "environment": beat["environment"],
-                    "lighting": beat["lighting"],
-                    "narration": beat["narration"],
-                    "caption": beat["caption"],
-                }
-            )
-
-        plan = {
-            "title": topic.title() if topic else "Generated Video",
-            "topic": topic,
-            "duration": duration,
-            "style": style,
-            "tone": tone,
-            "visual_direction": visual_dir,
-            "narration": " ".join(s["narration"] for s in scenes),
-            "scenes": scenes,
-        }
-        return _normalize_plan(plan, user_prompt)
+        # Ensure full backward compatibility with agent.py, frontend, and Streamlit
+        plan.setdefault("style", "educational instruction")
+        plan.setdefault("narration", storyboard.script)
+        for i, s in enumerate(plan.get("scenes", [])):
+            s.setdefault("index", i)
+            s.setdefault("caption", s.get("on_screen_text", f"Scene {i+1}"))
+            s.setdefault("visual_prompt", f"{s.get('subject', '')}: {s.get('action', '')}. {s.get('technical_content', '')}")
+            s.setdefault("camera_direction", s.get("camera", "Slow cinematic push-in"))
+            s.setdefault("beat_role", s.get("visual_type", "EDUCATIONAL_SCENE").upper())
+            s.setdefault("category_tag", storyboard.content_type.replace("_", " "))
+        return plan
 
 
 def _extract_duration(prompt: str) -> Optional[int]:
@@ -413,38 +318,37 @@ class VisualProvider:
         environment: str = "",
         lighting: str = "",
         shared_visual_anchor: dict = None,
+        visual_type: str = "",
+        shot_type: str = "",
+        action: str = "",
+        technical_content: str = "",
     ):
-        # Build a coherent, high-detail prompt free of text labels
-        style_context = visual_direction.strip() if visual_direction else "3D cinematic technical render, octane render"
-        env_context = environment.strip() if environment else "clean background"
-        light_context = lighting.strip() if lighting else "studio lighting"
-        
-        anchor_parts = []
-        if shared_visual_anchor:
-            palette = shared_visual_anchor.get("color_palette")
-            if palette and isinstance(palette, list):
-                anchor_parts.append(f"Color palette: {', '.join(palette)}")
-            mat = shared_visual_anchor.get("primary_material")
-            if mat:
-                anchor_parts.append(f"Materials: {mat}")
-            ls = shared_visual_anchor.get("lighting_setup")
-            if ls:
-                anchor_parts.append(f"Lighting: {ls}")
-            ea = shared_visual_anchor.get("environment_aesthetic")
-            if ea:
-                anchor_parts.append(f"Setting: {ea}")
-        
-        anchor_str = ". ".join(anchor_parts)
-        if anchor_str:
-            anchor_str = f" {anchor_str}."
+        # Build domain-specific educational prompt prefix
+        vtype = (visual_type or "").lower()
+        if "workstation" in vtype or "presenter" in vtype:
+            prefix = "Photorealistic medium shot of a realistic professional engineer working at a computer workstation, monitors visible displaying software and technical diagrams, "
+        elif "software" in vtype or "screen" in vtype or "viewport" in vtype:
+            prefix = "High-resolution software user interface screen capture, clean modern CAD and technical software workspace, "
+        elif "mathematical" in vtype:
+            prefix = "Clean scientific 3D mathematical visualization, coordinate grid lines, contoured loss surface, gradient vectors, "
+        elif "technical" in vtype:
+            prefix = "High-detail 3D technical engineering visualization, industrial CAD assembly, precision mechanical cutaway, "
+        else:
+            prefix = "Clean educational technical 3D visualization, "
 
-        # Clean text directives from prompt
+        style_context = visual_direction.strip() if visual_direction else "photorealistic educational technical render, studio lighting, octane render"
+        env_context = environment.strip() if environment else "engineering laboratory with monitors"
+        light_context = lighting.strip() if lighting else "cinematic studio lighting with subtle rim light"
+
         cleaned_prompt = re.sub(r"(?i)\b(with text|labeled with|text saying|words saying|caption)\b.*", "", visual_prompt).strip(" ,.")
-        
+        action_context = f" Action: {action}." if action else ""
+        tech_context = f" Technical Details: {technical_content}." if technical_content else ""
+
         enriched_prompt = (
-            f"{cleaned_prompt}. Style: {style_context}. Environment: {env_context}. Lighting: {light_context}.{anchor_str} "
+            f"{prefix}{cleaned_prompt}.{action_context}{tech_context} "
+            f"Framing: {shot_type or 'medium shot'}. Style: {style_context}. Environment: {env_context}. Lighting: {light_context}. "
             f"16:9 widescreen composition, 8k resolution, highly detailed, sharp focus, masterpiece composition. "
-            f"No text, no labels, no watermark, no logos, no typography, no blur."
+            f"No text, no labels, no watermark, no logos, no typography, no blur, no decorative fantasy."
         )
 
         if OPENAI_API_KEY:
@@ -455,15 +359,15 @@ class VisualProvider:
             except Exception as exc:
                 print(f"[VisualProvider] OpenAI image call failed ({exc}); using visual generator.")
 
-        # When OpenAI key is not set or fails, generate real topic-relevant visuals via Pollinations
+        # Real topic-relevant visuals via Pollinations
         try:
             seed = 100 + index * 7
             await self._generate_with_pollinations(enriched_prompt, out_path, size, seed=seed)
             return
         except Exception as exc:
-            print(f"[VisualProvider] Pollinations visual call failed ({exc}); trying topic visual repository.")
+            print(f"[VisualProvider] Pollinations visual call failed ({exc}); trying topic repository.")
 
-        # Fallback to authentic visual from educational/encyclopedic repository
+        # Fallback to authentic visual from educational repository
         try:
             topic = cleaned_prompt.split(",")[0].split(".")[0].strip()
             if len(topic.split()) > 4:
@@ -473,7 +377,7 @@ class VisualProvider:
         except Exception as exc:
             print(f"[VisualProvider] Topic visual repository failed ({exc}); using procedural fallback.")
 
-        self._generate_fallback(cleaned_prompt, index, out_path, size)
+        self._generate_fallback(cleaned_prompt, index, out_path, size, visual_type, shot_type, technical_content)
 
     async def _generate_with_openai(self, visual_prompt: str, out_path: str, size):
         async with httpx.AsyncClient(timeout=120) as client:
@@ -569,42 +473,43 @@ class VisualProvider:
                             continue
         raise RuntimeError("No suitable image found in visual repository")
 
-    def _generate_fallback(self, visual_prompt: str, index: int, out_path: str, size):
-        palettes = [
-            ((15, 20, 32), (56, 75, 160)),
-            ((10, 24, 30), (32, 140, 130)),
-            ((28, 14, 38), (170, 60, 120)),
-            ((12, 26, 18), (80, 160, 95)),
-            ((30, 18, 12), (180, 110, 45)),
-        ]
-        top, bottom = palettes[index % len(palettes)]
-        img = Image.new("RGB", size, top)
+    def _generate_fallback(self, visual_prompt: str, index: int, out_path: str, size, visual_type: str = "", shot_type: str = "", technical_content: str = ""):
+        # Technical blueprint / engineering card aesthetic
+        img = Image.new("RGB", size, (11, 14, 20))
         draw = ImageDraw.Draw(img)
-        for y in range(size[1]):
-            t = y / size[1]
-            r = int(top[0] + (bottom[0] - top[0]) * t)
-            g = int(top[1] + (bottom[1] - top[1]) * t)
-            b = int(top[2] + (bottom[2] - top[2]) * t)
-            draw.line([(0, y), (size[0], y)], fill=(r, g, b))
 
-        overlay = Image.new("RGBA", size, (0, 0, 0, 0))
-        odraw = ImageDraw.Draw(overlay)
-        for i in range(6):
-            cx = (index * 137 + i * 260) % size[0]
-            cy = (index * 91 + i * 180) % size[1]
-            r = 80 + (i * 37) % 220
-            odraw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(255, 255, 255, 14))
-        overlay = overlay.filter(ImageFilter.GaussianBlur(30))
-        img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
-        draw = ImageDraw.Draw(img)
+        # Draw technical coordinate grid
+        grid_color = (30, 41, 59)
+        step = 80
+        for x in range(0, size[0], step):
+            draw.line([(x, 0), (x, size[1])], fill=grid_color, width=1)
+        for y in range(0, size[1], step):
+            draw.line([(0, y), (size[0], y)], fill=grid_color, width=1)
+
+        # Corner technical registration marks
+        accent = (56, 189, 248)
+        bracket_len = 30
+        for cx, cy in [(40, 40), (size[0] - 40, 40), (40, size[1] - 40), (size[0] - 40, size[1] - 40)]:
+            dx = 1 if cx == 40 else -1
+            dy = 1 if cy == 40 else -1
+            draw.line([(cx, cy), (cx + dx * bracket_len, cy)], fill=accent, width=2)
+            draw.line([(cx, cy), (cx, cy + dy * bracket_len)], fill=accent, width=2)
+
+        # Central container box
+        box_w, box_h = size[0] - 240, size[1] - 240
+        bx1 = (size[0] - box_w) // 2
+        by1 = (size[1] - box_h) // 2
+        draw.rectangle([(bx1, by1), (bx1 + box_w, by1 + box_h)], outline=(51, 65, 85), width=2)
+
+        # Header tag bar
+        draw.rectangle([(bx1, by1), (bx1 + box_w, by1 + 60)], fill=(15, 23, 42))
+        tag_text = f"SCENE {index + 1} // {visual_type.upper() or 'TECHNICAL INSTRUCTION'} // {shot_type.upper() or 'OVERVIEW'}"
+        draw.text((bx1 + 24, by1 + 20), tag_text, fill=accent)
 
         try:
             if os.path.exists("C:/Windows/Fonts/arialbd.ttf"):
-                font = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", 52)
-                small_font = ImageFont.truetype("C:/Windows/Fonts/arial.ttf", 30)
-            elif os.path.exists("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"):
-                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 52)
-                small_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
+                font = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", 46)
+                small_font = ImageFont.truetype("C:/Windows/Fonts/arial.ttf", 26)
             else:
                 font = ImageFont.load_default()
                 small_font = font
@@ -612,13 +517,18 @@ class VisualProvider:
             font = ImageFont.load_default()
             small_font = font
 
-        wrapped = textwrap.fill(visual_prompt, width=36)
+        # Main prompt text wrapped inside box
+        wrapped = textwrap.fill(visual_prompt, width=45)
         bbox = draw.multiline_textbbox((0, 0), wrapped, font=font, spacing=14)
         tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
         x = (size[0] - tw) / 2
-        y = (size[1] - th) / 2
-        draw.multiline_text((x, y), wrapped, font=font, fill=(255, 255, 255), align="center", spacing=14)
-        draw.text((60, size[1] - 70), f"Scene {index + 1}", font=small_font, fill=(255, 255, 255, 180))
+        y = by1 + 100
+        draw.multiline_text((x, y), wrapped, font=font, fill=(248, 250, 252), align="center", spacing=14)
+
+        # Technical specification readout
+        if technical_content:
+            tech_wrapped = textwrap.fill(f"TECHNICAL FOCUS: {technical_content}", width=60)
+            draw.multiline_text((bx1 + 40, by1 + box_h - 90), tech_wrapped, font=small_font, fill=(148, 163, 184))
 
         img.save(out_path, quality=92)
 

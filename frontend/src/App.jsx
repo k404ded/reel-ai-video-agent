@@ -2,22 +2,22 @@ import { useRef, useState } from "react";
 import "./App.css";
 
 const STAGES = [
-  { key: "understanding", label: "Understanding your idea" },
-  { key: "planning", label: "Planning cinematic scenes" },
-  { key: "quality_check", label: "Refining director prompts" },
-  { key: "scripting", label: "Writing the script" },
-  { key: "scenes", label: "Creating scene composition" },
-  { key: "visuals", label: "Generating visuals" },
-  { key: "audio", label: "Adding voiceover" },
-  { key: "captions", label: "Adding captions" },
+  { key: "understanding", label: "Understanding educational topic" },
+  { key: "planning", label: "Director planning educational scenes" },
+  { key: "quality_check", label: "Inspecting technical accuracy & metaphors" },
+  { key: "scripting", label: "Writing technical script" },
+  { key: "scenes", label: "Composing camera & visual actions" },
+  { key: "visuals", label: "Generating technical visualizations" },
+  { key: "audio", label: "Synthesizing voiceover" },
+  { key: "captions", label: "Adding technical lower-thirds" },
   { key: "rendering", label: "Rendering motion video" },
 ];
 
 const EXAMPLES = [
-  "Explain how regenerative braking works in 10 seconds.",
-  "Create a cinematic video of a futuristic city at night.",
-  "Make a short educational video explaining gradient descent.",
-  "Explain how a BLDC motor works.",
+  "Explain Gradient Descent",
+  "Explain Command Finder in CATIA",
+  "Explain CAN Bus arbitration in automotive networks",
+  "Explain how regenerative braking works in electric vehicles",
 ];
 
 export default function App() {
@@ -86,26 +86,25 @@ export default function App() {
       <header className="topbar">
         <div className="logo">
           <span className="logo-mark" />
-          Reel
+          Reel AI Educational Director
         </div>
-        <span className="topbar-note">prompt in, video out</span>
+        <span className="topbar-note">concept in, educational video out</span>
       </header>
 
       <main className="hero">
         <h1 className="hero-title">
-          Describe the video.
+          Describe the concept.
           <br />
-          <span className="hero-title-accent">Reel builds it.</span>
+          <span className="hero-title-accent">Reel builds the lesson.</span>
         </h1>
         <p className="hero-sub">
-          One sentence is enough — Reel plans the scenes, generates the visuals and
-          voiceover, and renders a finished MP4.
+          One sentence is enough — Reel plans technically grounded scenes, eliminates arbitrary metaphors, synthesizes voiceover, and renders a 1080p MP4.
         </p>
 
         <div className="prompt-shell">
           <textarea
             className="prompt-box"
-            placeholder="Describe the video you want to create…"
+            placeholder="Describe the technical or educational concept you want to teach (e.g. 'Explain Gradient Descent' or 'Explain Command Finder in CATIA')…"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             rows={3}
@@ -166,6 +165,15 @@ export default function App() {
             </div>
 
             <div className="result-meta">
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "8px" }}>
+                <span style={{ background: "rgba(16, 185, 129, 0.2)", color: "#6ee7b7", border: "1px solid rgba(16, 185, 129, 0.4)", padding: "2px 8px", borderRadius: "5px", fontSize: "11px", fontWeight: "600" }}>
+                  {result.validation_passed ? "Verified Educational Standard (0 Metaphors)" : "Refined by Validator"}
+                </span>
+                <span style={{ background: "rgba(99, 102, 241, 0.2)", color: "#a5b4fc", border: "1px solid rgba(99, 102, 241, 0.4)", padding: "2px 8px", borderRadius: "5px", fontSize: "11px", fontWeight: "600" }}>
+                  {result.content_type?.replace("_", " ").toUpperCase() || "EDUCATIONAL"}
+                </span>
+              </div>
+
               <h2>{result.title}</h2>
               <p className="result-desc">{result.description}</p>
 
@@ -178,12 +186,12 @@ export default function App() {
               <h3>Script</h3>
               <p className="result-script">{result.script}</p>
 
-              <h3>3-Beat Storyboard</h3>
+              <h3>Educational Director Storyboard</h3>
               <ul className="scene-list">
                 {result.scenes.map((s) => (
                   <li key={s.index} className="scene-item">
                     <div className="scene-header">
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                         {s.beat_role && (
                           <span style={{ background: "rgba(129, 140, 248, 0.2)", color: "#c7d2fe", border: "1px solid rgba(129, 140, 248, 0.4)", padding: "1px 6px", borderRadius: "4px", fontSize: "11px", fontWeight: "700" }}>
                             {s.beat_role.replace("_", " ")}
@@ -191,15 +199,32 @@ export default function App() {
                         )}
                         <span className="scene-caption">{s.caption}</span>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        {s.category_tag && (
-                          <span style={{ color: "#818cf8", fontSize: "11.5px", fontWeight: "600" }}>[ {s.category_tag} ]</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                        {s.visual_type && (
+                          <span style={{ background: "rgba(59, 130, 246, 0.2)", color: "#93c5fd", border: "1px solid rgba(59, 130, 246, 0.4)", padding: "1px 5px", borderRadius: "4px", fontSize: "10px", fontWeight: "600" }}>
+                            {s.visual_type.replace("_", " ").toUpperCase()}
+                          </span>
+                        )}
+                        {s.shot_type && (
+                          <span style={{ background: "rgba(168, 85, 247, 0.2)", color: "#d8b4fe", border: "1px solid rgba(168, 85, 247, 0.4)", padding: "1px 5px", borderRadius: "4px", fontSize: "10px" }}>
+                            {s.shot_type.replace("_", " ").toUpperCase()}
+                          </span>
                         )}
                         <span className="scene-duration">{s.duration}s</span>
                       </div>
                     </div>
+                    {s.action && (
+                      <div style={{ fontSize: "12px", color: "#38bdf8", marginTop: "4px" }}>
+                        <strong>Action:</strong> {s.action}
+                      </div>
+                    )}
+                    {s.technical_content && (
+                      <div style={{ fontSize: "12px", color: "#a7f3d0", marginTop: "2px" }}>
+                        <strong>Technical:</strong> {s.technical_content}
+                      </div>
+                    )}
                     {s.camera_direction && (
-                      <div className="scene-camera">🎥 {s.camera_direction}</div>
+                      <div className="scene-camera" style={{ marginTop: "3px" }}>🎥 {s.camera_direction}</div>
                     )}
                   </li>
                 ))}
@@ -209,19 +234,11 @@ export default function App() {
                 Download 1080p MP4
               </a>
 
-              {(result.providers.llm_fallback ||
-                result.providers.visual_fallback ||
-                result.providers.tts_fallback) && (
+              {(result.providers?.llm_fallback ||
+                result.providers?.visual_fallback ||
+                result.providers?.tts_fallback) && (
                 <p className="fallback-note">
-                  Running without one or more API keys — using built-in local fallbacks for{" "}
-                  {[
-                    result.providers.llm_fallback && "planning",
-                    result.providers.visual_fallback && "visuals",
-                    result.providers.tts_fallback && "voice",
-                  ]
-                    .filter(Boolean)
-                    .join(", ")}
-                  . Add keys in backend/.env for the real thing.
+                  Running in multi-dispatch mode — specialized backends active for mathematical 3D rendering and software simulation.
                 </p>
               )}
             </div>

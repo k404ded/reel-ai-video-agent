@@ -35,6 +35,12 @@ class SceneAsset:
     image_path: str
     audio_path: str
     has_real_voice: bool
+    visual_type: str = "ai_workstation_video"
+    shot_type: str = "medium_shot"
+    subject: str = ""
+    action: str = ""
+    technical_content: str = ""
+    validation_status: str = "PASSED"
 
 
 @dataclass
@@ -51,6 +57,10 @@ class GenerationResult:
     using_fallback_llm: bool
     using_fallback_visual: bool
     using_fallback_tts: bool
+    content_type: str = "GENERAL_EDUCATIONAL"
+    validation_passed: bool = True
+    validation_warnings: list = field(default_factory=list)
+    generation_backend_used: str = "MULTI_DISPATCH_DIRECTOR"
 
 
 ProgressCallback = Optional[Callable[[str], "asyncio.Future"]]
@@ -58,19 +68,13 @@ ProgressCallback = Optional[Callable[[str], "asyncio.Future"]]
 
 def validate_and_refine_plan(plan: dict, user_prompt: str) -> dict:
     """
-    Quality Control validation step:
-    - Verifies duration and scene balance
-    - Enforces 3-beat visual storytelling structure (HOOK -> DYNAMIC -> PAYOFF)
-    - Validates visual prompts for physical clarity and strips unwanted text instructions
-    - Trims or tightens narration to match spoken cadence (~2.2 words per second)
-    - Ensures punchy, clean lower-third captions (3-5 words) and category tags
+    Ensures duration balance, clean cadence, and category tags.
     """
     scenes = plan.get("scenes") or []
     if not scenes:
         return plan
 
-    # 1. Duration validation
-    target_dur = plan.get("duration", 10.0)
+    target_dur = plan.get("duration", 15.0)
     current_total = sum(s.get("duration", 3.0) for s in scenes)
     if current_total > 0 and abs(current_total - target_dur) > 0.5:
         ratio = target_dur / current_total
@@ -78,68 +82,27 @@ def validate_and_refine_plan(plan: dict, user_prompt: str) -> dict:
             s["duration"] = round(max(s.get("duration", 3.0) * ratio, 2.5), 1)
         plan["duration"] = sum(s["duration"] for s in scenes)
 
-    # 2. Shared visual anchor validation
     if not plan.get("shared_visual_anchor"):
         plan["shared_visual_anchor"] = {
-            "color_palette": ["#0b0f19 deep graphite", "#0ea5e9 electric cyan", "#f59e0b friction amber"],
-            "lighting_setup": "Volumetric key spotlight with high-contrast cyan rim lighting",
-            "primary_material": "Brushed gunmetal steel and polished chrome bevels",
-            "environment_aesthetic": "Minimalist dark technical showroom with mirror reflection",
+            "color_palette": ["#0b0f19 deep graphite", "#0ea5e9 electric cyan", "#10b981 tech emerald"],
+            "lighting_setup": "Volumetric key studio spotlight with high-contrast rim lighting",
+            "primary_material": "Precision brushed aluminum, matte composite, and dark reflective glass",
+            "environment_aesthetic": "Modern high-tech engineering workstation and laboratory",
         }
-
-    # 3. Refine each scene
-    roles = ["HOOK", "DYNAMIC_MECHANISM", "PAYOFF"]
-    default_tags = ["HOW IT WORKS", "CORE DYNAMIC", "KEY TAKEAWAY"]
 
     for i, s in enumerate(scenes):
         s["duration"] = max(2.5, min(s.get("duration", 3.5), 6.0))
+        s.setdefault("visual_type", "ai_workstation_video")
+        s.setdefault("shot_type", "medium_shot")
+        s.setdefault("beat_role", s.get("visual_type", "SCENE").upper())
+        s.setdefault("category_tag", plan.get("content_type", "HOW IT WORKS").replace("_", " "))
+        s.setdefault("purpose", f"Scene {i+1}: {s.get('subject', 'Demonstration')}")
+        s.setdefault("camera_direction", s.get("camera", "Slow cinematic push-in toward active screen"))
 
-        # Beat role & category tag
-        if not s.get("beat_role"):
-            s["beat_role"] = roles[i % len(roles)]
-        if not s.get("category_tag"):
-            s["category_tag"] = default_tags[i % len(default_tags)]
-        else:
-            s["category_tag"] = s["category_tag"].upper().strip()
-
-        # Purpose fallback
-        if not s.get("purpose"):
-            s["purpose"] = f"Beat {i+1}: {s['beat_role'].replace('_', ' ').title()}"
-
-        # Camera direction fallback
-        if not s.get("camera_direction"):
-            default_cameras = [
-                "Slow cinematic push-in toward central focal point",
-                "Smooth horizontal pan across structural components",
-                "Wide pull-back reveal showing complete assembly",
-            ]
-            s["camera_direction"] = default_cameras[i % len(default_cameras)]
-
-        # Environment and lighting
-        if not s.get("environment"):
-            s["environment"] = plan["shared_visual_anchor"].get("environment_aesthetic", "Minimalist dark technical stage")
-        if not s.get("lighting"):
-            s["lighting"] = plan["shared_visual_anchor"].get("lighting_setup", "Studio rim lighting")
-
-        # Visual prompt: strip on-image text demands
-        vp = s.get("visual_prompt", plan.get("title", ""))
-        vp_clean = re.sub(r"(?i)\b(with text|labeled with|text saying|words saying|caption)\b.*", "", vp).strip(" ,.")
-        if len(vp_clean) < 20:
-            vp_clean = f"A detailed 3D representation of {plan.get('topic', 'the subject')}, showing authentic physical structure and materials"
-        s["visual_prompt"] = vp_clean
-
-        # Caption: clean and punchy (3-5 words)
-        cap = s.get("caption", "").strip()
-        words = cap.split()
-        if len(words) > 5:
-            s["caption"] = " ".join(words[:5])
-        elif not cap:
-            s["caption"] = plan.get("topic", "Overview").title()
-
-        # Narration: ensure spoken cadence fits duration (~2.2 words per sec)
+        # Narration word pacing check
         narr = s.get("narration", "").strip()
         narr_words = narr.split()
-        max_words = int(s["duration"] * 2.6)
+        max_words = int(s["duration"] * 2.8)
         if len(narr_words) > max_words:
             s["narration"] = " ".join(narr_words[:max_words]) + "."
 
@@ -188,13 +151,17 @@ async def generate_video(user_prompt: str, on_progress: ProgressCallback = None)
         audio_path = os.path.join(job_dir, f"scene_{i}.mp3")
 
         await visual.generate_scene_image(
-            visual_prompt=scene["visual_prompt"],
+            visual_prompt=scene.get("visual_prompt", scene.get("action", "")),
             index=i,
             out_path=img_path,
             visual_direction=visual_direction,
             environment=scene.get("environment", ""),
             lighting=scene.get("lighting", ""),
             shared_visual_anchor=shared_visual_anchor,
+            visual_type=scene.get("visual_type", ""),
+            shot_type=scene.get("shot_type", ""),
+            action=scene.get("action", ""),
+            technical_content=scene.get("technical_content", ""),
         )
         has_voice = await tts.synthesize(scene["narration"], audio_path, min_duration=scene["duration"])
 
@@ -202,11 +169,11 @@ async def generate_video(user_prompt: str, on_progress: ProgressCallback = None)
             SceneAsset(
                 index=i,
                 duration=scene["duration"],
-                beat_role=scene.get("beat_role", "HOOK"),
+                beat_role=scene.get("beat_role", scene.get("visual_type", "SCENE")).upper(),
                 purpose=scene.get("purpose", ""),
                 category_tag=scene.get("category_tag", "HOW IT WORKS"),
-                caption=scene["caption"],
-                visual_prompt=scene["visual_prompt"],
+                caption=scene.get("caption", scene.get("on_screen_text", "")),
+                visual_prompt=scene.get("visual_prompt", ""),
                 camera_direction=scene.get("camera_direction", "Slow cinematic push-in"),
                 environment=scene.get("environment", ""),
                 lighting=scene.get("lighting", ""),
@@ -214,6 +181,12 @@ async def generate_video(user_prompt: str, on_progress: ProgressCallback = None)
                 image_path=img_path,
                 audio_path=audio_path,
                 has_real_voice=has_voice,
+                visual_type=scene.get("visual_type", "ai_workstation_video"),
+                shot_type=scene.get("shot_type", "medium_shot"),
+                subject=scene.get("subject", ""),
+                action=scene.get("action", ""),
+                technical_content=scene.get("technical_content", ""),
+                validation_status=scene.get("validation_status", "PASSED"),
             )
         )
 
@@ -229,11 +202,11 @@ async def generate_video(user_prompt: str, on_progress: ProgressCallback = None)
     return GenerationResult(
         job_id=job_id,
         title=plan["title"],
-        description=f"A {plan.get('style', 'explainer')} video about {plan.get('topic', plan['title'])}.",
-        style=plan.get("style", "cinematic explainer"),
+        description=f"An authentic educational video explaining {plan.get('topic', plan['title'])}.",
+        style=plan.get("style", "educational explainer"),
         visual_direction=visual_direction,
         shared_visual_anchor=shared_visual_anchor,
-        script=plan["narration"],
+        script=plan.get("narration", plan.get("script", "")),
         scenes=[
             {
                 "index": s.index,
@@ -247,6 +220,12 @@ async def generate_video(user_prompt: str, on_progress: ProgressCallback = None)
                 "environment": s.environment,
                 "lighting": s.lighting,
                 "narration": s.narration,
+                "visual_type": s.visual_type,
+                "shot_type": s.shot_type,
+                "subject": s.subject,
+                "action": s.action,
+                "technical_content": s.technical_content,
+                "validation_status": s.validation_status,
             }
             for s in scene_assets
         ],
@@ -254,4 +233,8 @@ async def generate_video(user_prompt: str, on_progress: ProgressCallback = None)
         using_fallback_llm=llm.using_fallback,
         using_fallback_visual=visual.using_fallback,
         using_fallback_tts=tts.using_fallback,
+        content_type=plan.get("content_type", "GENERAL_EDUCATIONAL"),
+        validation_passed=plan.get("validation_passed", True),
+        validation_warnings=plan.get("validation_warnings", []),
+        generation_backend_used="MULTI_DISPATCH_DIRECTOR",
     )

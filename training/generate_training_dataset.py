@@ -1,0 +1,1234 @@
+"""
+generate_training_dataset.py
+Generates the comprehensive training dataset for Educational Video Director fine-tuning.
+Contains rich records across all 8 required categories with strict educational grammar,
+action-based scenes, and explicit prohibition of arbitrary cinematic metaphors.
+"""
+
+import json
+import os
+
+TRAINING_DATA = [
+    # -------------------------------------------------------------------------
+    # 1. MATHEMATICAL CONCEPTS: Gradient Descent
+    # -------------------------------------------------------------------------
+    {
+        "user_prompt": "Explain Gradient Descent",
+        "topic": "Gradient Descent",
+        "content_type": "MATHEMATICAL_CONCEPT",
+        "learning_objective": "Explain how gradient descent iteratively calculates the negative gradient vector on a loss surface to update parameters toward a global minimum.",
+        "presenter_required": True,
+        "mathematical_visualization_required": True,
+        "software_required": False,
+        "technical_visualization_required": True,
+        "required_visuals": [
+            "3D loss surface with contour lines",
+            "parameter point in parameter space (w1, w2)",
+            "gradient vector showing steepest ascent direction",
+            "negative gradient step trajectory",
+            "mathematical update equation: theta_{t+1} = theta_t - alpha * grad(J)",
+            "iterative convergence at the loss surface minimum"
+        ],
+        "required_actions": [
+            "AI instructor introduces optimization problem on screen",
+            "place starting parameter coordinate on high loss slope",
+            "compute and draw gradient tangent vector",
+            "step coordinate point in opposite direction scaled by learning rate alpha",
+            "animate successive descent steps tracing trajectory down slope",
+            "highlight parameter settling at minimum loss"
+        ],
+        "camera_shots": [
+            "medium_shot of AI instructor with digital whiteboard",
+            "3d_perspective orbital view of loss function surface",
+            "close_up of parameter point and gradient vector",
+            "overhead_contour view of iterative steps",
+            "split_screen with equation and converging surface plot"
+        ],
+        "prohibited_visual_behavior": [
+            "cars or vehicles driving down hills or roads",
+            "random natural mountain landscapes or hikers",
+            "unrelated physical rolling balls down real-world valleys",
+            "abstract decorative sci-fi crystals or nebulae",
+            "static decorative image without parameter movement"
+        ],
+        "narration_intent": "Deliver a mathematically rigorous, intuitive explanation of parameter updates, learning rate scaling, and objective function minimization.",
+        "expected_output_behavior": "A 5-scene educational storyboard progressing from instructor framing to 3D loss surface, gradient vector calculation, iterative update steps, and equation-backed convergence.",
+        "scene_sequence": [
+            {
+                "scene_id": 1,
+                "duration": 3.0,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_presenter",
+                "subject": "AI Mathematics Instructor",
+                "action": "Instructor gestures toward a glowing holographic 3D loss surface floating beside them, introducing cost minimization.",
+                "environment": "Modern technical lecture studio with dark architectural backdrop and subtle grid lighting.",
+                "camera": "Slow cinematic push-in toward instructor and holographic display.",
+                "animation": "Holographic 3D loss surface materializes with glowing coordinate axes (w1, w2, Loss).",
+                "technical_content": "Introduction to objective loss function J(theta).",
+                "on_screen_text": "OPTIMIZING PARAMETERS: Minimizing Loss Function J(theta)",
+                "narration": "In machine learning, gradient descent is the mathematical engine used to train models by minimizing an error function.",
+                "transition": "smooth_zoom_into_hologram",
+                "generation_requirements": ["photorealistic instructor", "scientific hologram", "studio key lighting"]
+            },
+            {
+                "scene_id": 2,
+                "duration": 4.0,
+                "shot_type": "3d_perspective",
+                "visual_type": "mathematical_animation",
+                "subject": "3D Loss Surface with Parameter Coordinate",
+                "action": "Camera tracks above a bowl-shaped convex loss surface as an initial parameter point theta_0 is plotted high on the slope.",
+                "environment": "Precision mathematical coordinate space with wireframe contours and depth color-coding.",
+                "camera": "Smooth orbital pan around the 3D surface, tilting down toward the plotted coordinate.",
+                "animation": "Grid contours highlight loss elevation; bright parameter coordinate pulses on the surface slope.",
+                "technical_content": "Loss Surface J(w1, w2) with initial state theta_0.",
+                "on_screen_text": "INITIAL STATE: High Error Region (theta_0)",
+                "narration": "We begin with random parameter values that place us high on the error surface, where prediction error is large.",
+                "transition": "cut_to_macro",
+                "generation_requirements": ["matplotlib/3d coordinate render", "clean contour lines", "pulsing coordinate point"]
+            },
+            {
+                "scene_id": 3,
+                "duration": 4.5,
+                "shot_type": "close_up",
+                "visual_type": "mathematical_animation",
+                "subject": "Gradient Vector and Negative Direction Step",
+                "action": "A tangent plane forms at the point. An arrow representing the gradient vector points uphill, while a highlighted vector points in the exact opposite direction.",
+                "environment": "Dark mathematical canvas with bright vector lines.",
+                "camera": "Macro focus on the parameter point, tangent plane, and directional vectors.",
+                "animation": "Gradient vector points in direction of steepest ascent; negative gradient vector flashes and steps the point downhill.",
+                "technical_content": "Gradient vector nabla J(theta) and negative gradient -nabla J(theta).",
+                "on_screen_text": "STEEPEST DESCENT: Moving Opposite to Gradient (-nabla J)",
+                "narration": "The gradient calculates the steepest uphill slope. To reduce error, we step in the exact opposite direction.",
+                "transition": "dissolve_to_iterations",
+                "generation_requirements": ["vector arrows with orthogonal projections", "tangent plane overlay", "high-contrast lines"]
+            },
+            {
+                "scene_id": 4,
+                "duration": 4.5,
+                "shot_type": "split_screen",
+                "visual_type": "mathematical_animation",
+                "subject": "Iterative Updates and Update Equation",
+                "action": "The point takes successive steps down the contour valley. Beside the surface, the update equation pulses synchronously with each step.",
+                "environment": "Split screen: left shows top-down contour trajectory; right shows mathematical equation.",
+                "camera": "Static high-readability split view with animated step traces.",
+                "animation": "Step trajectory lines connect points theta_1, theta_2, theta_3 down the contours as alpha scales step size.",
+                "technical_content": "theta_{t+1} = theta_t - alpha * nabla J(theta_t)",
+                "on_screen_text": "UPDATE RULE: theta_{t+1} = theta_t - alpha * nabla J(theta_t)",
+                "narration": "Scaled by the learning rate alpha, each iteration updates parameters toward smaller loss values.",
+                "transition": "pan_to_minimum",
+                "generation_requirements": ["LaTeX equation animation", "contour step path", "step size comparison"]
+            },
+            {
+                "scene_id": 5,
+                "duration": 3.5,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_presenter",
+                "subject": "Instructor and Converged Minimum",
+                "action": "The parameter point settles into the global minimum where the gradient becomes zero. Instructor summarizes convergence.",
+                "environment": "Studio setting with the converged 3D graph glowing softly on the right monitor.",
+                "camera": "Medium profile shot panning smoothly back to the instructor.",
+                "animation": "Gradient magnitude drops to zero; loss curve flatlines at minimum.",
+                "technical_content": "Convergence condition: |nabla J(theta)| approx 0.",
+                "on_screen_text": "CONVERGENCE REACHED: Optimal Parameter Set theta*",
+                "narration": "At the minimum, the gradient approaches zero, and our model reaches its optimal configuration.",
+                "transition": "fade_out",
+                "generation_requirements": ["presenter summary", "converged flat gradient indicator", "professional lower-third"]
+            }
+        ]
+    },
+
+    # -------------------------------------------------------------------------
+    # 2. CAD / SOFTWARE TUTORIAL: CATIA Command Finder
+    # -------------------------------------------------------------------------
+    {
+        "user_prompt": "Explain Command Finder in CATIA",
+        "topic": "Command Finder in CATIA",
+        "content_type": "CAD_TUTORIAL",
+        "learning_objective": "Demonstrate how to quickly search, locate, and execute CAD tools and workbench commands using CATIA's Command Finder utility.",
+        "presenter_required": True,
+        "software_required": True,
+        "mathematical_visualization_required": False,
+        "technical_visualization_required": True,
+        "required_visuals": [
+            "mechanical engineer sitting at CAD dual-monitor workstation",
+            "CATIA 3DEXPERIENCE interface open with complex mechanical assembly model",
+            "over-the-shoulder view of engineer moving cursor to lower right Command Finder / Power Input",
+            "screen close-up typing command keyword (e.g., 'Pad' or 'Pocket' or 'Spline')",
+            "live auto-complete search results drop-down highlighting command icon and workbench path",
+            "cursor executing command directly on the 3D model viewport"
+        ],
+        "required_actions": [
+            "engineer works at workstation with CAD model loaded",
+            "camera pans over engineer shoulder to CAD monitor",
+            "cursor navigates to command search field",
+            "engineer types command query; matching commands filter dynamically",
+            "click selected command and view activation on 3D geometry"
+        ],
+        "camera_shots": [
+            "wide_workspace establishing shot of engineer at workstation",
+            "over_the_shoulder tracking shot towards CAD display",
+            "screen_closeup of the Command Finder search box and auto-complete results",
+            "macro_shot of hand on high-precision CAD 3D mouse/keyboard",
+            "viewport_screen demonstrating command execution on CAD model"
+        ],
+        "prohibited_visual_behavior": [
+            "random sci-fi portals or holographic futuristic spaceships",
+            "unrelated cinematic landscapes or empty fantasy rooms",
+            "static stock photos of business suits shaking hands",
+            "vague non-CAD software screens like spreadsheets or social media",
+            "ignoring the software UI entirely"
+        ],
+        "narration_intent": "Guide mechanical engineers through rapid command retrieval in CATIA to accelerate modeling workflows without digging through workbench menus.",
+        "expected_output_behavior": "A 5-scene authentic CAD workflow progression: engineer workstation -> monitor transition -> search box entry -> auto-complete selection -> feature execution on 3D CAD part.",
+        "scene_sequence": [
+            {
+                "scene_id": 1,
+                "duration": 3.0,
+                "shot_type": "wide_workspace",
+                "visual_type": "ai_workstation_video",
+                "subject": "Mechanical Engineer at CAD Workstation",
+                "action": "A professional mechanical engineer sits at an ergonomic dual-monitor workstation analyzing an aerospace bracket in CATIA.",
+                "environment": "Engineering design office with ambient lighting and clean industrial design workstations.",
+                "camera": "Slow wide tracking shot moving right to left across the workstation.",
+                "animation": "Subtle screen movement as the engineer rotates the 3D CAD model using a 3Dconnexion space-mouse.",
+                "technical_content": "Industrial CAD environment with complex parametric part modeling.",
+                "on_screen_text": "CATIA 3DEXPERIENCE: Rapid Command Access",
+                "narration": "When designing complex assemblies in CATIA, searching through nested toolbars slows down your workflow.",
+                "transition": "cut_to_over_the_shoulder",
+                "generation_requirements": ["photorealistic engineer", "ergonomic workstation", "dual monitor CAD display"]
+            },
+            {
+                "scene_id": 2,
+                "duration": 4.0,
+                "shot_type": "over_the_shoulder",
+                "visual_type": "software_demonstration",
+                "subject": "CATIA User Interface and Power Input Field",
+                "action": "Camera frames over the engineer's shoulder onto the primary monitor. The cursor glides toward the Command Finder search field at the bottom right.",
+                "environment": "Crisp workstation monitor displaying authentic CATIA tree and geometry viewport.",
+                "camera": "Over-the-shoulder push-in towards the active software window.",
+                "animation": "Mouse cursor navigates with natural acceleration to the Command Search / Power Input bar.",
+                "technical_content": "Specification Tree, 3D Compass, and Power Input interface elements.",
+                "on_screen_text": "COMMAND FINDER: Located in the Bottom Status / Action Bar",
+                "narration": "Instead of hunting through menus, use the Command Finder in the bottom action bar to locate any tool instantly.",
+                "transition": "cut_to_screen_closeup",
+                "generation_requirements": ["authentic CATIA UI layout", "smooth cursor motion", "sharp typography on UI"]
+            },
+            {
+                "scene_id": 3,
+                "duration": 4.5,
+                "shot_type": "screen_closeup",
+                "visual_type": "screen_closeup",
+                "subject": "Command Query Entry and Live Filtering",
+                "action": "Extreme close-up of the search bar as 'c:Pad' is typed. An auto-complete dropdown appears instantly listing matching tools and their workbench locations.",
+                "environment": "High-definition monitor macro view.",
+                "camera": "Static macro screen capture focusing on the text box and popup menu.",
+                "animation": "Keystroke-by-keystroke text appearance, followed by highlighted row selection in search results.",
+                "technical_content": "Search syntax 'c:CommandName' and direct workbench breadcrumbs.",
+                "on_screen_text": "INSTANT SEARCH: Filtering Tools Across All Workbenches",
+                "narration": "Simply type the command name or prefix. CATIA filters tools dynamically across every available workbench.",
+                "transition": "cut_to_execution",
+                "generation_requirements": ["high-resolution software capture", "clear font rendering", "dropdown highlight state"]
+            },
+            {
+                "scene_id": 4,
+                "duration": 4.0,
+                "shot_type": "viewport_screen",
+                "visual_type": "software_demonstration",
+                "subject": "Command Selection and Dialog Execution",
+                "action": "The engineer clicks the Pad command from the list; the Pad Definition dialog box opens instantly on the 3D model viewport.",
+                "environment": "CATIA 3D modeling workspace with shaded mechanical solid.",
+                "camera": "Smooth pan across the viewport focusing on the newly generated extrusion preview.",
+                "animation": "Cursor clicks command; dialog box pops up; orange dimensional preview arrow extrudes profile.",
+                "technical_content": "Pad Definition feature parameters: Length, Profile/Surface, Reverse Direction.",
+                "on_screen_text": "ONE-CLICK EXECUTION: Opens Feature Dialog Without Menu Navigation",
+                "narration": "Clicking the result activates the feature directly on your geometry, saving dozens of clicks every hour.",
+                "transition": "cut_to_engineer_close",
+                "generation_requirements": ["parametric CAD extrusion preview", "interactive dialog box", "realistic mouse click"]
+            },
+            {
+                "scene_id": 5,
+                "duration": 3.0,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_workstation_video",
+                "subject": "Engineer Finalizing CAD Model",
+                "action": "Engineer nods with satisfaction as the finished bracket solid updates in the tree. Camera pulls back to show the organized workstation.",
+                "environment": "Engineering studio with clean lighting.",
+                "camera": "Smooth pull-back reveal from screen to engineer smiling at completed task.",
+                "animation": "Finished solid highlighted on screen with updated feature tree item.",
+                "technical_content": "Completed parametric PartBody solid.",
+                "on_screen_text": "WORKFLOW ACCELERATION: Boost Design Velocity in CATIA",
+                "narration": "Mastering Command Finder is the fastest way to accelerate your everyday CAD modeling workflow.",
+                "transition": "fade_out",
+                "generation_requirements": ["human engineer interaction", "completed CAD solid", "professional polish"]
+            }
+        ]
+    },
+
+    # -------------------------------------------------------------------------
+    # 3. MACHINE LEARNING: Convolutional Neural Network (CNN)
+    # -------------------------------------------------------------------------
+    {
+        "user_prompt": "Explain Convolutional Neural Networks (CNN)",
+        "topic": "Convolutional Neural Networks",
+        "content_type": "TECHNICAL_CONCEPT",
+        "learning_objective": "Explain how convolution kernels slide across input feature maps, extract spatial features, apply pooling, and classify visual patterns.",
+        "presenter_required": True,
+        "mathematical_visualization_required": True,
+        "software_required": False,
+        "technical_visualization_required": True,
+        "required_visuals": [
+            "input image matrix with numerical pixel intensity values",
+            "sliding 3x3 convolution kernel with weight values",
+            "element-wise multiplication and summation dot product",
+            "feature map activation layer highlighting edge detection",
+            "max pooling operation reducing spatial dimensionality (2x2 stride 2)",
+            "fully connected dense classification layer"
+        ],
+        "required_actions": [
+            "AI instructor introduces computer vision challenge",
+            "show 2D grid matrix of an input image",
+            "animate 3x3 kernel matrix sliding step-by-step with stride 1",
+            "calculate scalar output for each receptive field to populate feature map",
+            "apply 2x2 max pooling downsampling",
+            "flatten features into output classification probabilities"
+        ],
+        "camera_shots": [
+            "medium_shot of AI instructor with interactive screen",
+            "straight_on 2D animated matrix diagram",
+            "close_up on kernel dot product computation",
+            "3d_perspective layered architecture stack",
+            "split_screen of feature map and output bar graph"
+        ],
+        "prohibited_visual_behavior": [
+            "brain synapses glowing like sci-fi fantasy movies",
+            "car driving down neural pathways",
+            "abstract matrix rain from movie 'The Matrix'",
+            "unrelated colorful particle storms",
+            "static diagrams with no kernel movement"
+        ],
+        "narration_intent": "Detail the spatial feature extraction mechanics of convolutional layers, parameter sharing, and dimensionality reduction through pooling.",
+        "expected_output_behavior": "5-scene structured breakdown: Instructor framing -> Sliding kernel convolution -> Feature map activation -> Max pooling -> Dense classification.",
+        "scene_sequence": [
+            {
+                "scene_id": 1,
+                "duration": 3.5,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_presenter",
+                "subject": "AI Research Scientist",
+                "action": "Instructor introduces visual feature detection using an interactive glass touchscreen showing an input image matrix.",
+                "environment": "AI research lab with subtle technical background screens.",
+                "camera": "Push-in toward instructor explaining spatial hierarchies.",
+                "animation": "Input image of an automotive component transitions into a grid of numerical pixel intensities (0-255).",
+                "technical_content": "Image representation as tensor H x W x C.",
+                "on_screen_text": "COMPUTER VISION: Convolutional Feature Extraction",
+                "narration": "Convolutional Neural Networks process images not as raw flat pixels, but by preserving spatial structures through localized filters.",
+                "transition": "dissolve_to_matrix",
+                "generation_requirements": ["photorealistic scientist", "interactive digital board", "pixel matrix display"]
+            },
+            {
+                "scene_id": 2,
+                "duration": 4.5,
+                "shot_type": "macro_detail",
+                "visual_type": "mathematical_animation",
+                "subject": "Sliding Convolution Kernel",
+                "action": "A 3x3 filter kernel slides across an input matrix. Each overlapping cell calculates element-wise product and sums to a single output value.",
+                "environment": "High-contrast digital matrix workspace.",
+                "camera": "Overhead top-down focus on sliding filter window.",
+                "animation": "Bounding box moves across cells with stride 1; arithmetic calculations display dynamically above receptive field.",
+                "technical_content": "Convolution operation: S(i, j) = (I * K)(i, j) = sum_m sum_n I(m, n) K(i-m, j-n).",
+                "on_screen_text": "CONVOLUTION: 3x3 Kernel Sliding Across Receptive Fields",
+                "narration": "A small filter kernel slides across the image, computing dot products to detect low-level edges, curves, and textures.",
+                "transition": "cut_to_feature_map",
+                "generation_requirements": ["numerical matrix grid", "animated sliding overlay", "real-time arithmetic summation"]
+            },
+            {
+                "scene_id": 3,
+                "duration": 4.0,
+                "shot_type": "3d_perspective",
+                "visual_type": "technical_3d_animation",
+                "subject": "Layered Feature Maps Hierarchy",
+                "action": "Multiple parallel filters produce stacked feature maps. Early maps reveal edges, while deeper layers capture complex geometric shapes.",
+                "environment": "Dark volumetric 3D visualization plane.",
+                "camera": "Isometric 3D view rotating smoothly around stacked tensor layers.",
+                "animation": "Channels expand from RGB to 64 feature maps with visible edge activations.",
+                "technical_content": "Hierarchical representation: Edges -> Textures -> Parts -> Objects.",
+                "on_screen_text": "FEATURE MAPS: Hierarchical Representation Learning",
+                "narration": "By stacking multiple filters, each layer learns increasingly abstract features, from simple edges to complete parts.",
+                "transition": "cut_to_pooling",
+                "generation_requirements": ["isometric layer stack", "color-coded activation gradients", "clear depth sorting"]
+            },
+            {
+                "scene_id": 4,
+                "duration": 4.0,
+                "shot_type": "close_up",
+                "visual_type": "mathematical_animation",
+                "subject": "Max Pooling Operation",
+                "action": "A 2x2 pooling window traverses the feature map, extracting the maximum value from each quadrant to downsample resolution by half.",
+                "environment": "Clean technical schematic grid.",
+                "camera": "Close-up tracking the 2x2 red highlighted pooling window.",
+                "animation": "Four cells pulse; highest numerical value transfers to compact output grid.",
+                "technical_content": "Max Pooling 2x2 with stride 2: Translation invariance and dimension reduction.",
+                "on_screen_text": "MAX POOLING: Downsampling Spatial Dimensions",
+                "narration": "Pooling layers then downsample the feature maps, reducing computational load and providing translational invariance.",
+                "transition": "cut_to_classification",
+                "generation_requirements": ["step-by-step max selection", "dimension reduction visual", "clean typography"]
+            },
+            {
+                "scene_id": 5,
+                "duration": 3.5,
+                "shot_type": "split_screen",
+                "visual_type": "technical_3d_animation",
+                "subject": "Dense Classifier and Output Probabilities",
+                "action": "Pooled features flatten into a 1D vector connected to softmax classification neurons. The correct class probability bar surges to 98%.",
+                "environment": "High-tech analytics dashboard.",
+                "camera": "Split view: left shows flattened network connections; right displays output probabilities.",
+                "animation": "Neurons illuminate in cascade; probability bar chart rises smoothly.",
+                "technical_content": "Flatten -> Dense FC Layer -> Softmax activation.",
+                "on_screen_text": "CLASSIFICATION: Softmax Probability Distribution",
+                "narration": "Finally, dense layers aggregate these extracted features to output precise classification probabilities.",
+                "transition": "fade_out",
+                "generation_requirements": ["neural connection lines", "interactive bar chart", "crisp scientific layout"]
+            }
+        ]
+    },
+
+    # -------------------------------------------------------------------------
+    # 4. AUTOMOTIVE ENGINEERING: CAN Bus Arbitration
+    # -------------------------------------------------------------------------
+    {
+        "user_prompt": "Explain CAN Bus Arbitration",
+        "topic": "CAN Bus Arbitration",
+        "content_type": "AUTOMOTIVE_PROCESS",
+        "learning_objective": "Illustrate how automotive electronic control units resolve message collisions on a shared differential bus using dominant bit identifier arbitration.",
+        "presenter_required": True,
+        "mathematical_visualization_required": False,
+        "software_required": False,
+        "technical_visualization_required": True,
+        "required_visuals": [
+            "automotive engineer in electrical testing lab",
+            "vehicle wiring architecture with multiple ECUs (Brake, Engine, Steering)",
+            "differential CAN High and CAN Low voltage waveforms on oscilloscope",
+            "frame identifier comparison showing Node A (high priority) vs Node B (low priority)",
+            "dominant bit (0) overriding recessive bit (1) on the shared bus line",
+            "node losing arbitration backing off cleanly without corrupted data"
+        ],
+        "required_actions": [
+            "engineer points to vehicle harness test bench",
+            "two ECUs transmit messages simultaneously",
+            "zoom into bit-by-bit arbitration field on differential signal lines",
+            "show Node B transmitting recessive 1 while Node A transmits dominant 0",
+            "Node B senses dominant 0, detects collision, and stops transmitting",
+            "Node A completes high-priority transmission unimpeded"
+        ],
+        "camera_shots": [
+            "wide_shot of automotive test bench with wire harness",
+            "over_the_shoulder view of oscilloscope digital waveforms",
+            "macro_detail of comparative bit streams (Node A vs Node B)",
+            "timing_diagram close-up highlighting arbitration loss moment",
+            "medium_shot of engineer explaining non-destructive priority"
+        ],
+        "prohibited_visual_behavior": [
+            "cars driving on highway or traffic jams as metaphor",
+            "police cars pulling over speeders",
+            "abstract glowing fiber optic wormholes",
+            "unrelated cartoon characters shouting",
+            "skipping electrical timing and bit-level diagrams"
+        ],
+        "narration_intent": "Explain non-destructive bitwise arbitration (CSMA/CR) in vehicle Controller Area Networks.",
+        "expected_output_behavior": "5-scene structured engineering walkthrough: Lab context -> Bus architecture -> Simultaneous transmission -> Bit arbitration collision -> Unimpeded high-priority delivery.",
+        "scene_sequence": [
+            {
+                "scene_id": 1,
+                "duration": 3.0,
+                "shot_type": "medium_engineer",
+                "visual_type": "ai_workstation_video",
+                "subject": "Automotive Systems Engineer",
+                "action": "Engineer at an automotive hardware-in-the-loop bench inspects differential signals on a multichannel digital oscilloscope.",
+                "environment": "Vehicle electrical engineering laboratory with ECU test fixtures and wiring harnesses.",
+                "camera": "Smooth tracking shot across test bench toward oscilloscope screen.",
+                "animation": "Differential waveforms pulse across oscilloscope display; CAN_H and CAN_L channels active.",
+                "technical_content": "ISO 11898 CAN Bus Physical Layer (CAN_H 3.5V, CAN_L 1.5V dominant).",
+                "on_screen_text": "AUTOMOTIVE NETWORKS: CAN Bus Bitwise Arbitration",
+                "narration": "In modern vehicles, dozens of microcontrollers share a single two-wire CAN bus to communicate in real time.",
+                "transition": "cut_to_schematic",
+                "generation_requirements": ["automotive lab environment", "real oscilloscope display", "harness wiring"]
+            },
+            {
+                "scene_id": 2,
+                "duration": 4.0,
+                "shot_type": "technical_schematic",
+                "visual_type": "technical_3d_animation",
+                "subject": "ECU Network Topology and Simultaneous Transmission",
+                "action": "A schematic reveals the Braking ECU (high priority) and Climate ECU (low priority) transmitting data frames onto the bus at the exact same microsecond.",
+                "environment": "Dark electronic schematic stage with animated bus traces.",
+                "camera": "Isometric sweep across connected ECU nodes.",
+                "animation": "Digital pulses travel from both ECUs along copper traces toward the shared bus wires.",
+                "technical_content": "CSMA/CD with bitwise contention resolution.",
+                "on_screen_text": "COLLISION SCENARIO: Multiple ECUs Transmit Simultaneously",
+                "narration": "When multiple controllers transmit at the exact same instant, CAN prevents collisions using non-destructive arbitration.",
+                "transition": "cut_to_bit_stream",
+                "generation_requirements": ["schematic ECU icons", "pulsing signal traces", "differential pair representation"]
+            },
+            {
+                "scene_id": 3,
+                "duration": 4.5,
+                "shot_type": "macro_detail",
+                "visual_type": "mathematical_animation",
+                "subject": "Bit-by-Bit Identifier Comparison",
+                "action": "Dual timing diagrams display the 11-bit identifier fields. Bits are transmitted synchronously bit by bit from MSB to LSB.",
+                "environment": "Digital logic analyzer screen visualization.",
+                "camera": "Macro tracking along synchronized square clock pulses.",
+                "animation": "Clock cycles march forward; bits 10, 9, and 8 match between both nodes.",
+                "technical_content": "Standard 11-bit CAN Identifier (ID10 to ID0). Dominant = 0, Recessive = 1.",
+                "on_screen_text": "IDENTIFIER FIELD: Lower Numerical Value = Higher Priority",
+                "narration": "Each message starts with an identifier. On the physical bus, a logical zero is dominant and overrides a logical one.",
+                "transition": "cut_to_arbitration_loss",
+                "generation_requirements": ["logic analyzer waveforms", "dominant/recessive color keys", "clock synchronization grid"]
+            },
+            {
+                "scene_id": 4,
+                "duration": 4.5,
+                "shot_type": "close_up",
+                "visual_type": "mathematical_animation",
+                "subject": "Arbitration Loss and Node Back-Off",
+                "action": "At bit 7, Node B transmits a recessive 1, but senses the bus pulled dominant 0 by Node A. Node B immediately stops transmitting.",
+                "environment": "High-contrast logic analyzer with red warning marker on lost bit.",
+                "camera": "Zoom onto bit 7 collision point.",
+                "animation": "Node B transmitter switches to receiver mode; Node A continues uninterrupted without losing a single bit.",
+                "technical_content": "Wired-AND behavior: V_diff > 0.9V dominant overrides V_diff < 0.5V recessive.",
+                "on_screen_text": "ARBITRATION DECISION: Node B Detects Mismatch and Yields Bus",
+                "narration": "The moment a node transmits a one but reads a zero, it realizes a higher-priority message is transmitting and immediately yields.",
+                "transition": "cut_to_summary",
+                "generation_requirements": ["mismatch callout box", "seamless signal continuation", "electrical voltage graph"]
+            },
+            {
+                "scene_id": 5,
+                "duration": 3.0,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_workstation_video",
+                "subject": "Safe Message Completion",
+                "action": "The engineer points to the decoded CAN frame showing zero corrupted packets and latency under 1 millisecond.",
+                "environment": "Automotive test laboratory.",
+                "camera": "Medium profile pan from screen to engineer.",
+                "animation": "Decoded CAN packet displays green 'CRC VALID' badge.",
+                "technical_content": "Deterministic real-time delivery with zero bus re-negotiation overhead.",
+                "on_screen_text": "DETERMINISTIC LATENCY: Zero Data Loss or Retransmission Delay",
+                "narration": "This guarantees that critical safety messages, like braking commands, always win immediate bus access without data corruption.",
+                "transition": "fade_out",
+                "generation_requirements": ["CAN protocol decoder screen", "engineer explanation", "professional lower-third"]
+            }
+        ]
+    },
+
+    # -------------------------------------------------------------------------
+    # 5. EV / BMS: Battery Cell Balancing
+    # -------------------------------------------------------------------------
+    {
+        "user_prompt": "Explain EV Battery Management System Cell Balancing",
+        "topic": "BMS Cell Balancing",
+        "content_type": "ENGINEERING_PROCESS",
+        "learning_objective": "Explain why lithium-ion cells drift in state-of-charge and how passive and active cell balancing protect pack capacity and lifespan.",
+        "presenter_required": True,
+        "mathematical_visualization_required": False,
+        "software_required": False,
+        "technical_visualization_required": True,
+        "required_visuals": [
+            "battery systems engineer with EV battery pack module on bench",
+            "series of lithium-ion pouch/cylindrical cells with unequal voltage bars (e.g. 4.15V vs 4.02V)",
+            "cell drift during charging causing premature cutoff",
+            "passive balancing circuit showing shunt resistor dissipating excess energy as heat",
+            "active balancing architecture transferring charge between adjacent cells via inductor/capacitor",
+            "balanced pack reaching full unified capacity"
+        ],
+        "required_actions": [
+            "engineer inspects disassembled battery module",
+            "visualize voltage distribution bar chart across 12 series cells",
+            "highlight weakest cell reaching high-voltage cutoff early, halting charging",
+            "activate bypass balancing resistor across highest voltage cell",
+            "equalize all cell voltages to reach 100% total pack usable capacity"
+        ],
+        "camera_shots": [
+            "medium_shot of engineer with battery pack module",
+            "cutaway_3d of internal cylindrical battery cell array",
+            "bar_chart voltage monitor highlighting cell imbalance",
+            "circuit_diagram close-up of MOSFET shunt bypass",
+            "wide_shot of fully charged synchronized battery module"
+        ],
+        "prohibited_visual_behavior": [
+            "lightning bolts shooting from car batteries",
+            "cartoon battery characters running on treadmills",
+            "explosion movies or burning cartoon cars",
+            "generic abstract green energy glowing leaves",
+            "omitting voltage measurements and circuit components"
+        ],
+        "narration_intent": "Detail the electro-chemical drift causes and circuit balancing topologies in high-voltage electric vehicle packs.",
+        "expected_output_behavior": "5-scene engineering flow: Battery pack context -> Imbalance demonstration -> Premature cutoff problem -> Balancing circuit activation -> Synchronized pack performance.",
+        "scene_sequence": [
+            {
+                "scene_id": 1,
+                "duration": 3.0,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_workstation_video",
+                "subject": "Battery Systems Engineer with EV Module",
+                "action": "Engineer in ESD lab coat inspects a high-voltage battery module connected to a diagnostic BMS harness.",
+                "environment": "High-voltage battery development facility with testing equipment.",
+                "camera": "Slow cinematic track around the battery module.",
+                "animation": "CAD cross-section illuminates individual cell connections in series.",
+                "technical_content": "Lithium-ion NMC cell module in 12S configuration.",
+                "on_screen_text": "EV BATTERY MANAGEMENT: Cell Voltage Balancing",
+                "narration": "In an electric vehicle battery pack, hundreds of individual cells are wired in series to supply hundreds of volts.",
+                "transition": "cut_to_voltage_bars",
+                "generation_requirements": ["EV battery pack module", "ESD lab environment", "technical instrumentation"]
+            },
+            {
+                "scene_id": 2,
+                "duration": 4.0,
+                "shot_type": "split_screen",
+                "visual_type": "technical_3d_animation",
+                "subject": "Cell Voltage Drift and Imbalance",
+                "action": "A bar chart displays voltages across twelve cells. Due to manufacturing tolerances and thermal gradients, Cell 3 sits at 4.18V while Cell 7 is at 4.05V.",
+                "environment": "Clean telemetry monitoring interface.",
+                "camera": "Split view: top shows battery module; bottom displays real-time telemetry bars.",
+                "animation": "Voltage bars rise during charging; Cell 3 approaches upper cutoff limit first.",
+                "technical_content": "Cell delta V > 100mV indicating significant State of Charge divergence.",
+                "on_screen_text": "IMBALANCE DETECTED: Delta V = 130mV Across Series String",
+                "narration": "Because no two cells are identical, slight variations in internal resistance and temperature cause cell voltages to drift apart over time.",
+                "transition": "cut_to_cutoff_problem",
+                "generation_requirements": ["telemetry bar graphs", "voltage readout gauges", "color-coded threshold indicators"]
+            },
+            {
+                "scene_id": 3,
+                "duration": 4.0,
+                "shot_type": "close_up",
+                "visual_type": "technical_3d_animation",
+                "subject": "Premature Charging Cutoff",
+                "action": "Charging halts abruptly when the highest cell hits 4.20V, leaving the rest of the pack undercharged and reducing total vehicle range.",
+                "environment": "Telemetry interface with red high-voltage cutoff alarm.",
+                "camera": "Close-up on Cell 3 triggering overvoltage protection.",
+                "animation": "Charging current drops to zero amperes; available energy gauge displays only 85% capacity.",
+                "technical_content": "Over-Voltage Protection (OVP) threshold 4.20V halts pack charging.",
+                "on_screen_text": "PREMATURE CUTOFF: Pack Constrained by Single Highest Cell",
+                "narration": "The BMS must halt charging as soon as any single cell reaches its safety limit, trapping usable capacity in the rest of the pack.",
+                "transition": "cut_to_balancing_circuit",
+                "generation_requirements": ["alarm notification graphic", "charge flow cutoff animation", "capacity gauge loss"]
+            },
+            {
+                "scene_id": 4,
+                "duration": 4.5,
+                "shot_type": "macro_detail",
+                "visual_type": "mathematical_animation",
+                "subject": "Passive Balancing Circuitry Activation",
+                "action": "An electronic schematic overlays the high cell. A BMS microcontroller activates a MOSFET switch, bleeding excess current through a precision discharge resistor.",
+                "environment": "Dark PCB circuit board visualization with glowing current paths.",
+                "camera": "Macro glide along the copper PCB traces of the balancing resistor.",
+                "animation": "MOSFET gate voltage turns ON; current bleeds across 39-ohm shunt resistor as thermal energy.",
+                "technical_content": "Passive bleed balancing: I_bleed = V_cell / R_shunt (approx 100mA).",
+                "on_screen_text": "PASSIVE BALANCING: Shunting Excess Current Through Bleed Resistors",
+                "narration": "The BMS activates a bypass switch across the high cell, bleeding off excess energy through a resistor until all cells align.",
+                "transition": "cut_to_balanced_pack",
+                "generation_requirements": ["PCB circuit overlay", "current vector flow", "thermal dissipation indicator"]
+            },
+            {
+                "scene_id": 5,
+                "duration": 3.5,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_workstation_video",
+                "subject": "Harmonized Pack Reaching Full Capacity",
+                "action": "All twelve voltage bars equalize perfectly at 4.20V. Engineer reviews telemetry showing 100% full capacity and extended pack longevity.",
+                "environment": "Battery engineering laboratory.",
+                "camera": "Smooth pull-back reveal showing stabilized telemetry monitor and engineer.",
+                "animation": "All voltage bars settle into uniform green alignment; pack range updates to maximum.",
+                "technical_content": "Delta V < 10mV across entire string; full 100% pack capacity unlocked.",
+                "on_screen_text": "CELLS BALANCED: Full 100% Usable Range and Extended Longevity",
+                "narration": "With voltages balanced, the entire pack charges uniformly to full capacity, maximizing driving range and battery lifespan.",
+                "transition": "fade_out",
+                "generation_requirements": ["balanced telemetry bars", "satisfied engineer", "professional closing lower-third"]
+            }
+        ]
+    },
+
+    # -------------------------------------------------------------------------
+    # 6. PROGRAMMING: Recursion Call Stack
+    # -------------------------------------------------------------------------
+    {
+        "user_prompt": "Explain Recursion and the Call Stack",
+        "topic": "Recursion Call Stack",
+        "content_type": "PROGRAMMING_TUTORIAL",
+        "learning_objective": "Explain how recursive function calls push stack frames onto memory, suspend execution, reach a base case, and pop return values in LIFO order.",
+        "presenter_required": True,
+        "software_required": True,
+        "mathematical_visualization_required": False,
+        "technical_visualization_required": True,
+        "required_visuals": [
+            "software engineer at code development workstation",
+            "IDE code editor showing recursive factorial function `def factorial(n):`",
+            "memory call stack diagram stacking stack frames vertically (LIFO)",
+            "stack frame parameters (n=3, n=2, n=1)",
+            "base case condition `if n <= 1: return 1` triggered",
+            "stack unwinding popping return values downward"
+        ],
+        "required_actions": [
+            "engineer writes code in IDE",
+            "step execution into recursive function call",
+            "push stack frame onto call stack memory area",
+            "hit base case condition preventing stack overflow",
+            "unwind stack by multiplying return values and popping frames"
+        ],
+        "camera_shots": [
+            "over_the_shoulder view of programmer at IDE",
+            "split_screen of code editor and memory stack diagram",
+            "screen_closeup of code breakpoint stepping",
+            "macro_shot of memory address allocation",
+            "medium_shot of engineer summarizing LIFO call resolution"
+        ],
+        "prohibited_visual_behavior": [
+            "Russian nesting dolls as cheap metaphor instead of real code and memory",
+            "hall of mirrors infinity visual effect",
+            "falling into bottomless pit cartoons",
+            "matrix green code falling without syntax or memory",
+            "ignoring stack frames and return values"
+        ],
+        "narration_intent": "Provide a rigorous software engineering explanation of stack frame allocation, base conditions, and LIFO unwinding.",
+        "expected_output_behavior": "5-scene programming tutorial: Engineer writing code -> Call stack frame allocation -> Base case trigger -> Return value unwinding -> Summary.",
+        "scene_sequence": [
+            {
+                "scene_id": 1,
+                "duration": 3.0,
+                "shot_type": "over_the_shoulder",
+                "visual_type": "ai_workstation_video",
+                "subject": "Software Engineer at Coding Workstation",
+                "action": "A software engineer types a recursive algorithm into a modern dark-theme code editor.",
+                "environment": "Clean software development office with dual monitors.",
+                "camera": "Over-the-shoulder glide toward the code editor.",
+                "animation": "Cursor types `def factorial(n):` with syntax highlighting.",
+                "technical_content": "Recursive function definition with parameter n.",
+                "on_screen_text": "COMPUTER SCIENCE: Recursion and Memory Call Stack",
+                "narration": "Recursion occurs when a function solves a problem by calling smaller instances of itself.",
+                "transition": "cut_to_split_screen",
+                "generation_requirements": ["programmer at desk", "realistic IDE UI", "clean code syntax"]
+            },
+            {
+                "scene_id": 2,
+                "duration": 4.5,
+                "shot_type": "split_screen",
+                "visual_type": "software_demonstration",
+                "subject": "Call Stack Memory Allocation",
+                "action": "Calling factorial(3) pushes a stack frame onto the memory stack. As it calls factorial(2), another stack frame stacks on top, suspending the caller.",
+                "environment": "Split screen: left shows IDE debugger; right shows RAM stack diagram.",
+                "camera": "Static split-screen focus with animated stack growth.",
+                "animation": "Debugger highlights recursive call line; stack frame block drops onto stack with local variable n=3.",
+                "technical_content": "Call Stack Frame: Return address, local variables, parameters.",
+                "on_screen_text": "STACK PUSH: Suspending Execution and Allocating Stack Frame",
+                "narration": "Every call allocates a new stack frame in memory, storing local variables and suspending the calling function until a result returns.",
+                "transition": "cut_to_base_case",
+                "generation_requirements": ["split screen layout", "memory stack animation", "step-by-step debugger"]
+            },
+            {
+                "scene_id": 3,
+                "duration": 4.0,
+                "shot_type": "screen_closeup",
+                "visual_type": "screen_closeup",
+                "subject": "Base Case Condition Hit",
+                "action": "When n equals 1, the base case `if n <= 1: return 1` executes. The recursion stops branching and prepares to return.",
+                "environment": "Macro code editor view.",
+                "camera": "Close-up on base case lines 2 and 3.",
+                "animation": "Base case line illuminates with golden highlight; top stack frame glows green.",
+                "technical_content": "Base Case condition terminating recursion and preventing stack overflow.",
+                "on_screen_text": "BASE CASE REACHED: Halting Infinite Recursion",
+                "narration": "Without a base case, calls would continue until memory is exhausted. The base condition halts recursion and begins returning values.",
+                "transition": "cut_to_unwinding",
+                "generation_requirements": ["code breakpoint pulse", "stack top highlight", "clear conditional logic"]
+            },
+            {
+                "scene_id": 4,
+                "duration": 4.5,
+                "shot_type": "split_screen",
+                "visual_type": "mathematical_animation",
+                "subject": "Stack Unwinding and Value Return",
+                "action": "The top frame pops, returning 1 to factorial(2), which computes 2 * 1 = 2 and pops. Then factorial(3) computes 3 * 2 = 6.",
+                "environment": "Split view showing rapid popping of stack blocks.",
+                "camera": "Focus on stack blocks dissolving as values propagate downward.",
+                "animation": "Numbers return downward; stack blocks pop in Last-In First-Out order.",
+                "technical_content": "LIFO execution: 1 -> (2*1=2) -> (3*2=6).",
+                "on_screen_text": "STACK UNWINDING: Resolving Calls in Last-In First-Out (LIFO) Order",
+                "narration": "The call stack now unwinds in Last-In First-Out order, multiplying return values down the chain until the final result is reached.",
+                "transition": "cut_to_engineer_summary",
+                "generation_requirements": ["LIFO pop animation", "multiplication bubble callouts", "terminal output 6"]
+            },
+            {
+                "scene_id": 5,
+                "duration": 3.0,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_workstation_video",
+                "subject": "Programmer Reviewing Execution Output",
+                "action": "The terminal displays `Output: 6`. The programmer smiles and points to the clean memory graph showing zero memory leaks.",
+                "environment": "Development workstation.",
+                "camera": "Pull-back from monitor to engineer.",
+                "animation": "Terminal output prints; memory stack shows 0 active frames.",
+                "technical_content": "Clean stack deallocation and O(n) space complexity.",
+                "on_screen_text": "EXECUTION COMPLETE: Clean Memory Deallocation",
+                "narration": "Understanding how the call stack handles frames is fundamental to writing performant, bug-free recursive code.",
+                "transition": "fade_out",
+                "generation_requirements": ["terminal print output", "engineer wrap-up", "clean lower-third"]
+            }
+        ]
+    },
+
+    # -------------------------------------------------------------------------
+    # 7. MANUFACTURING: CNC Toolpath Setup
+    # -------------------------------------------------------------------------
+    {
+        "user_prompt": "Explain CNC Milling Toolpath Setup",
+        "topic": "CNC Milling Toolpath Setup",
+        "content_type": "ENGINEERING_PROCESS",
+        "learning_objective": "Demonstrate how manufacturing engineers define work coordinate systems, select cutting tools, set feed/speed parameters, and simulate 3-axis CNC milling toolpaths.",
+        "presenter_required": True,
+        "software_required": True,
+        "mathematical_visualization_required": False,
+        "technical_visualization_required": True,
+        "required_visuals": [
+            "manufacturing engineer at CAM workstation beside industrial CNC machining center",
+            "CAM software showing 3D stock billet and target aerospace bracket geometry",
+            "defining Work Coordinate System (WCS) datum G54 on billet corner",
+            "selecting flat endmill cutting tool and configuring spindle speed (RPM) and feed rate",
+            "adaptive roughing toolpath generation with blue cutting passes and yellow rapid moves",
+            "material removal simulation showing progressive chip evacuation"
+        ],
+        "required_actions": [
+            "engineer inspects raw aluminum stock and CAD part",
+            "set WCS G54 origin coordinate in CAM software",
+            "generate helical ramp entry and adaptive pocket clearing passes",
+            "simulate toolpath collision check",
+            "post-process G-code to CNC machine controller"
+        ],
+        "camera_shots": [
+            "wide_workspace of engineer at CAM station next to CNC mill",
+            "screen_closeup of CAM toolpath generation parameters",
+            "3d_perspective of toolpath vectors over aluminum stock",
+            "macro_cutaway of endmill flute geometry and engagement angle",
+            "medium_shot of engineer validating G-code output"
+        ],
+        "prohibited_visual_behavior": [
+            "sparks flying everywhere like fireworks in action movies",
+            "cartoon sawmills or woodcutters",
+            "generic futuristic laser melting without physical tools",
+            "unrelated hand tools like hammers and wrenches",
+            "static photos without CAM screen or machine interaction"
+        ],
+        "narration_intent": "Detail the industrial precision setup required to convert 3D CAD models into physical parts via CAM toolpath programming.",
+        "expected_output_behavior": "5-scene manufacturing sequence: CAM workstation -> WCS Datum -> Toolpath generation -> Material removal simulation -> G-code export.",
+        "scene_sequence": [
+            {
+                "scene_id": 1,
+                "duration": 3.0,
+                "shot_type": "wide_workspace",
+                "visual_type": "ai_workstation_video",
+                "subject": "Manufacturing Engineer at CAM Workstation",
+                "action": "Manufacturing engineer in safety glasses configures a CAM setup on a ruggedized terminal on the factory floor.",
+                "environment": "Precision manufacturing shop floor with CNC machining centers in background.",
+                "camera": "Slow pan across industrial machining cell to engineer's screen.",
+                "animation": "CAM software displays a raw 6061-T6 aluminum billet enclosing the target finished part.",
+                "technical_content": "Raw stock vs. target CAD model comparison.",
+                "on_screen_text": "CNC MANUFACTURING: CAM Toolpath Programming",
+                "narration": "Transforming a 3D CAD design into a physical metal component begins in CAM software with toolpath setup.",
+                "transition": "cut_to_wcs",
+                "generation_requirements": ["manufacturing shop floor", "rugged workstation", "industrial CNC machinery"]
+            },
+            {
+                "scene_id": 2,
+                "duration": 4.0,
+                "shot_type": "screen_closeup",
+                "visual_type": "software_demonstration",
+                "subject": "Work Coordinate System (WCS) Datum Setup",
+                "action": "Engineer places the WCS G54 datum on the top-left corner of the stock billet. X, Y, and Z coordinate triads lock into position.",
+                "environment": "High-definition CAM software interface.",
+                "camera": "Macro zoom on coordinate datum triad placement.",
+                "animation": "Triad snaps to billet corner; Z-axis points vertically normal to top face.",
+                "technical_content": "Work Coordinate System G54: Datum origin (X0, Y0, Z0).",
+                "on_screen_text": "WORK COORDINATE SYSTEM: Establishing G54 Part Zero",
+                "narration": "First, we establish part zero by setting the Work Coordinate System G54 datum on the stock material.",
+                "transition": "cut_to_toolpath_gen",
+                "generation_requirements": ["CAM coordinate triad", "stock bounding box", "sharp UI text"]
+            },
+            {
+                "scene_id": 3,
+                "duration": 4.5,
+                "shot_type": "3d_perspective",
+                "visual_type": "technical_3d_animation",
+                "subject": "Adaptive Clearing Toolpath Generation",
+                "action": "Selecting an adaptive roughing strategy calculates smooth trochoidal passes that maintain constant cutting tool engagement.",
+                "environment": "3D CAM graphics viewport.",
+                "camera": "Orbital rotation around the toolpath wireframe.",
+                "animation": "Blue cutting feed lines and yellow rapid transit lines generate rapidly around the bracket contours.",
+                "technical_content": "Constant radial engagement angle; high-speed machining (HSM) toolpaths.",
+                "on_screen_text": "ADAPTIVE ROUGHING: Maintaining Constant Tool Engagement",
+                "narration": "Adaptive toolpaths calculate smooth circular milling passes, preventing tool breakage by keeping cutting loads constant.",
+                "transition": "cut_to_simulation",
+                "generation_requirements": ["3D toolpath lines", "helical ramp entries", "realistic material shading"]
+            },
+            {
+                "scene_id": 4,
+                "duration": 4.0,
+                "shot_type": "close_up",
+                "visual_type": "technical_3d_animation",
+                "subject": "Material Removal Simulation",
+                "action": "A virtual solid carbide endmill spins and cuts through the raw stock block, dynamically removing voxels of material to reveal the bracket.",
+                "environment": "CAM simulation viewport with collision detection active.",
+                "camera": "Close-up tracking the rotating tool tip as it carves a pocket.",
+                "animation": "Stock material carves away cleanly with green 'No Collision' status on tool shank and holder.",
+                "technical_content": "Voxel-based stock removal simulation and collision clearance check.",
+                "on_screen_text": "VERIFICATION: Solid Stock Simulation and Collision Check",
+                "narration": "Simulation verifies that the tool clears clamps and fixture boundaries with zero gouging or spindle collisions.",
+                "transition": "cut_to_gcode",
+                "generation_requirements": ["spinning endmill tool model", "progressive material removal", "collision clearance envelope"]
+            },
+            {
+                "scene_id": 5,
+                "duration": 3.5,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_workstation_video",
+                "subject": "G-Code Post-Processing and Machine Load",
+                "action": "Engineer posts the toolpath to Fanuc G-code on a USB drive and verifies the block on the CNC machine control panel.",
+                "environment": "Beside the closed CNC milling machine enclosure.",
+                "camera": "Medium pan from CAM screen to CNC control panel.",
+                "animation": "G-code text streams across controller monitor (G00, G01, G02, M08 coolant on).",
+                "technical_content": "Post-processed ISO G-Code ready for machine execution.",
+                "on_screen_text": "POST-PROCESSING: Generating Machine-Specific G-Code",
+                "narration": "The toolpaths are post-processed into precise G-code, ready to guide the CNC spindle with sub-thousandth accuracy.",
+                "transition": "fade_out",
+                "generation_requirements": ["CNC control panel", "real G-code syntax", "engineer ready for production"]
+            }
+        ]
+    },
+
+    # -------------------------------------------------------------------------
+    # 8. GENERAL ENGINEERING: PID Controller Feedback Loop
+    # -------------------------------------------------------------------------
+    {
+        "user_prompt": "Explain PID Controller",
+        "topic": "PID Controller",
+        "content_type": "GENERAL_EDUCATIONAL",
+        "learning_objective": "Explain how Proportional, Integral, and Derivative control terms calculate an error signal to smoothly drive a physical system to a desired setpoint.",
+        "presenter_required": True,
+        "mathematical_visualization_required": True,
+        "software_required": False,
+        "technical_visualization_required": True,
+        "required_visuals": [
+            "control systems engineer with high-precision motor test bench",
+            "block diagram of closed-loop feedback system (Setpoint, Error, PID block, Plant, Sensor)",
+            "Proportional response showing immediate reaction proportional to current error e(t)",
+            "Integral response accumulating past steady-state error int e(t) dt",
+            "Derivative response dampening overshoot by predicting future rate of change de(t)/dt",
+            "response curve settling quickly at target setpoint without oscillation"
+        ],
+        "required_actions": [
+            "engineer introduces closed-loop control system",
+            "introduce step change in target setpoint",
+            "calculate error e(t) = Setpoint - Measured Value",
+            "sum Proportional, Integral, and Derivative control outputs",
+            "demonstrate tuning: eliminate steady-state error and dampen oscillations"
+        ],
+        "camera_shots": [
+            "medium_shot of engineer with robotic actuator bench",
+            "block_diagram architectural overlay",
+            "scope_view showing step response curve against setpoint line",
+            "split_screen comparing P-only vs PI vs PID tuning",
+            "medium_shot of stable actuator matching setpoint"
+        ],
+        "prohibited_visual_behavior": [
+            "person driving a steering wheel in traffic",
+            "thermostat knob turning in cartoon house",
+            "abstract glowing orbs balancing on beams",
+            "sci-fi laser beam targeting reticles",
+            "skipping control block diagrams and response curves"
+        ],
+        "narration_intent": "Detail the mathematical synergy between P, I, and D terms in closed-loop automated control systems.",
+        "expected_output_behavior": "5-scene control engineering sequence: Actuator context -> Error block diagram -> P, I, D mathematical terms -> Step response tuning -> Settled setpoint.",
+        "scene_sequence": [
+            {
+                "scene_id": 1,
+                "duration": 3.0,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_workstation_video",
+                "subject": "Control Systems Engineer with Precision Actuator",
+                "action": "Control engineer demonstrates an automated precision brushless motor actuator on an optical test table.",
+                "environment": "Robotics and mechatronics control lab.",
+                "camera": "Smooth glide toward the motor test rig and monitoring display.",
+                "animation": "Motor arm moves toward a target angular position indicated by a laser line.",
+                "technical_content": "Closed-loop feedback control system.",
+                "on_screen_text": "CONTROL SYSTEMS: PID Feedback Loop Architecture",
+                "narration": "In automated machinery, PID controllers continuously calculate errors to drive mechanisms precisely to a target position.",
+                "transition": "cut_to_block_diagram",
+                "generation_requirements": ["mechatronics lab", "precision motor rig", "oscilloscope display"]
+            },
+            {
+                "scene_id": 2,
+                "duration": 4.0,
+                "shot_type": "technical_schematic",
+                "visual_type": "mathematical_animation",
+                "subject": "Closed-Loop Error Calculation",
+                "action": "A classic feedback block diagram highlights the summing junction where the measured feedback is subtracted from the desired setpoint.",
+                "environment": "Dark technical schematic canvas.",
+                "camera": "Smooth pan following signal flow from Setpoint through Summing Junction to PID blocks.",
+                "animation": "Error pulse e(t) = r(t) - y(t) enters three parallel branches: P, I, and D.",
+                "technical_content": "Error signal calculation: e(t) = Setpoint - Sensor Feedback.",
+                "on_screen_text": "FEEDBACK LOOP: Error e(t) = Setpoint - Process Variable",
+                "narration": "The controller measures where the system is, compares it to the target setpoint, and calculates the instantaneous error.",
+                "transition": "cut_to_three_terms",
+                "generation_requirements": ["clean block diagram", "signal flow arrows", "high-contrast formula text"]
+            },
+            {
+                "scene_id": 3,
+                "duration": 4.5,
+                "shot_type": "split_screen",
+                "visual_type": "mathematical_animation",
+                "subject": "Proportional, Integral, and Derivative Terms",
+                "action": "The screen splits into three mathematical branches showing how each term computes its corrective force.",
+                "environment": "High-readability digital math workspace.",
+                "camera": "Static three-way split framing each mathematical expression.",
+                "animation": "Proportional reacts to current error (Kp*e); Integral sums past accumulated error (Ki*int e dt); Derivative predicts rate of change (Kd*de/dt).",
+                "technical_content": "u(t) = Kp e(t) + Ki int_0^t e(tau) dtau + Kd de(t)/dt",
+                "on_screen_text": "PID COMPONENTS: Present Error (P), Past Drift (I), Future Trend (D)",
+                "narration": "Proportional corrects for the present error, Integral eliminates past steady-state drift, and Derivative dampens future overshoot.",
+                "transition": "cut_to_response_curve",
+                "generation_requirements": ["three-panel comparison", "animated integral area under curve", "derivative tangent slope"]
+            },
+            {
+                "scene_id": 4,
+                "duration": 4.5,
+                "shot_type": "scope_view",
+                "visual_type": "mathematical_animation",
+                "subject": "Step Response Tuning Comparison",
+                "action": "A real-time oscilloscope graph compares response curves: P-only overshoots wildly, PI corrects offset but oscillates, while full PID settles smoothly onto the setpoint.",
+                "environment": "Precision oscilloscope grid display.",
+                "camera": "Straight-on tracking of the response curve as it approaches the dotted setpoint line.",
+                "animation": "Three colored curves trace simultaneously across the time axis; green PID curve achieves critical damping.",
+                "technical_content": "Damping ratio zeta = 1.0, Rise time Tr, Settling time Ts, Zero steady-state error.",
+                "on_screen_text": "TUNED STEP RESPONSE: Rapid Rise Time with Minimal Overshoot",
+                "narration": "Properly tuned, the three terms combine to bring the system swiftly to its target without oscillations or destructive overshoot.",
+                "transition": "cut_to_stable_hardware",
+                "generation_requirements": ["oscilloscope step response curves", "critically damped curve", "rise time callout"]
+            },
+            {
+                "scene_id": 5,
+                "duration": 3.0,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_workstation_video",
+                "subject": "Actuator Locked on Target Setpoint",
+                "action": "The physical motor arm snaps directly to 90 degrees and holds position with rock-solid stability despite external disturbance.",
+                "environment": "Mechatronics laboratory.",
+                "camera": "Medium pan from settled response graph to the stable motor arm.",
+                "animation": "Green 'Target Acquired: Steady State' indicator illuminates.",
+                "technical_content": "Robust closed-loop stability under dynamic load disturbance.",
+                "on_screen_text": "ROBUST CONTROL: Sub-Millimeter Positional Accuracy",
+                "narration": "From drone flight controllers to automotive steering, PID ensures reliable, precision control across modern engineering.",
+                "transition": "fade_out",
+                "generation_requirements": ["stable mechanical actuator", "engineer validation", "professional closing lower-third"]
+            }
+        ]
+    },
+
+    # -------------------------------------------------------------------------
+    # 9. SOFTWARE TUTORIAL: Git Merge Conflict Resolution
+    # -------------------------------------------------------------------------
+    {
+        "user_prompt": "Explain How to Resolve a Git Merge Conflict",
+        "topic": "Git Merge Conflict Resolution",
+        "content_type": "SOFTWARE_TUTORIAL",
+        "learning_objective": "Demonstrate how software developers detect conflicting branch modifications, interpret Git conflict markers, and resolve differences in an interactive merge editor.",
+        "presenter_required": True,
+        "software_required": True,
+        "mathematical_visualization_required": False,
+        "technical_visualization_required": True,
+        "required_visuals": [
+            "software engineer at multi-monitor development workstation",
+            "terminal displaying `git merge feature-auth` resulting in `CONFLICT (content): Merge conflict in auth.py`",
+            "VS Code editor showing conflict markers `<<<<<<< HEAD`, `=======`, `>>>>>>> feature-auth`",
+            "close-up clicking inline action buttons: 'Accept Current Change', 'Accept Incoming Change', 'Accept Both'",
+            "resolved code file staged with `git add auth.py` and finalized with merge commit"
+        ],
+        "required_actions": [
+            "engineer executes merge command in terminal triggering conflict",
+            "open conflicting source file in IDE editor",
+            "analyze divergence between HEAD (current branch) and incoming branch",
+            "click 'Accept Both Changes' and manually clean up syntax",
+            "stage resolved file and commit final merge"
+        ],
+        "camera_shots": [
+            "wide_workspace of developer at workstation",
+            "over_the_shoulder view focused on terminal error output",
+            "screen_closeup of conflict markers inside source code",
+            "macro_shot of cursor clicking 'Accept Both Changes' button",
+            "medium_shot of engineer verifying clean branch graph"
+        ],
+        "prohibited_visual_behavior": [
+            "boxing gloves or fighting cartoons as metaphor for conflict",
+            "trains crashing on tracks",
+            "abstract glowing data cubes colliding in space",
+            "unrelated generic stock office photos",
+            "skipping the actual Git markers and editor UI"
+        ],
+        "narration_intent": "Guide software developers through clear, calm Git conflict resolution without fear of losing branch history.",
+        "expected_output_behavior": "5-scene software tutorial: Terminal conflict trigger -> Conflict markers breakdown -> Interactive resolution -> Code cleanup & staging -> Completed merge commit.",
+        "scene_sequence": [
+            {
+                "scene_id": 1,
+                "duration": 3.0,
+                "shot_type": "wide_workspace",
+                "visual_type": "ai_workstation_video",
+                "subject": "Software Developer at Workstation",
+                "action": "A software engineer typing in a terminal executes `git merge feature-auth` into main, which outputs an automatic merge failed notification.",
+                "environment": "Modern software engineering office with warm ambient task lighting.",
+                "camera": "Slow track across workstation toward primary monitor.",
+                "animation": "Terminal command executes; red warning text appears: 'Automatic merge failed; fix conflicts and commit result.'",
+                "technical_content": "Git branch integration and three-way merge failure.",
+                "on_screen_text": "VERSION CONTROL: Resolving Git Merge Conflicts",
+                "narration": "A Git merge conflict occurs when two branches modify the exact same lines of code and Git needs human judgment to reconcile them.",
+                "transition": "cut_to_terminal_closeup",
+                "generation_requirements": ["developer at workstation", "authentic terminal UI", "sharp red conflict text"]
+            },
+            {
+                "scene_id": 2,
+                "duration": 4.0,
+                "shot_type": "over_the_shoulder",
+                "visual_type": "software_demonstration",
+                "subject": "VS Code Editor and Conflict Markers",
+                "action": "The engineer opens `auth.py` in VS Code. The editor automatically highlights the conflict region separated by Git conflict markers.",
+                "environment": "Crisp dark-theme code editor interface.",
+                "camera": "Over-the-shoulder push-in toward the active code window.",
+                "animation": "Cursor scrolls to highlighted conflict section between line 42 and 50.",
+                "technical_content": "Git conflict delimiters: <<<<<<< HEAD (Current Change), ======= (Separator), >>>>>>> feature-auth (Incoming Change).",
+                "on_screen_text": "CONFLICT DELIMITERS: HEAD vs. Incoming Branch",
+                "narration": "Opening the conflicting file reveals three markers: HEAD shows your current branch changes, while incoming displays the branch being merged.",
+                "transition": "cut_to_marker_closeup",
+                "generation_requirements": ["syntax highlighted code", "conflict color highlights", "over-the-shoulder perspective"]
+            },
+            {
+                "scene_id": 3,
+                "duration": 4.5,
+                "shot_type": "screen_closeup",
+                "visual_type": "screen_closeup",
+                "subject": "Interactive Merge Action Selection",
+                "action": "Extreme close-up of the editor action bar floating above the conflict: 'Accept Current', 'Accept Incoming', 'Accept Both Changes'. Cursor hovers over 'Accept Both Changes'.",
+                "environment": "High-definition monitor macro view.",
+                "camera": "Static macro screen capture focusing on the action bar buttons.",
+                "animation": "Mouse cursor clicks 'Accept Both Changes'; the conflict markers vanish, keeping both validation functions.",
+                "technical_content": "VS Code Merge Editor inline code actions.",
+                "on_screen_text": "INLINE ACTIONS: Choosing Resolution Strategy",
+                "narration": "Modern code editors provide instant buttons to keep current changes, accept incoming changes, or combine both.",
+                "transition": "cut_to_code_cleanup",
+                "generation_requirements": ["macro UI capture", "interactive cursor click", "marker removal animation"]
+            },
+            {
+                "scene_id": 4,
+                "duration": 4.0,
+                "shot_type": "screen_closeup",
+                "visual_type": "software_demonstration",
+                "subject": "Code Editing and Staging Resolved File",
+                "action": "Engineer quickly formats the combined functions and switches to the integrated terminal to run `git add auth.py` and `git commit`.",
+                "environment": "Integrated terminal inside IDE.",
+                "camera": "Pan down from editor pane to bottom terminal pane.",
+                "animation": "Terminal runs `git add auth.py`; file status switches from red 'U' (unmerged) to green 'M' (staged).",
+                "technical_content": "Staging resolved index: git add marks conflict as resolved.",
+                "on_screen_text": "RESOLVING: Staging Reconciled File (git add auth.py)",
+                "narration": "After refining the merged code, staging the file tells Git the conflict is resolved and prepares the final merge commit.",
+                "transition": "cut_to_git_log",
+                "generation_requirements": ["terminal command execution", "git status indicator change", "clean formatting"]
+            },
+            {
+                "scene_id": 5,
+                "duration": 3.5,
+                "shot_type": "medium_shot",
+                "visual_type": "ai_workstation_video",
+                "subject": "Engineer Reviewing Clean Commit Graph",
+                "action": "Engineer reviews the visual Git graph on the secondary monitor showing the two branches cleanly joined at the merge commit.",
+                "environment": "Software development workstation.",
+                "camera": "Smooth pull-back reveal showing dual monitors and developer smiling.",
+                "animation": "Git branch graph illustrates feature-auth merging into main with green checkmark.",
+                "technical_content": "Clean DAG commit graph: Merge commit with dual parents.",
+                "on_screen_text": "MERGE COMPLETE: Clean Branch Integration with Full History",
+                "narration": "The merge commit integrates both contributions into history without losing a single line of work.",
+                "transition": "fade_out",
+                "generation_requirements": ["git branch graph visual", "developer satisfaction", "professional closing lower-third"]
+            }
+        ]
+    }
+]
+
+
+def generate_datasets():
+    output_dir = os.path.dirname(__file__)
+    
+    # 1. Primary Raw Educational Plans Dataset
+    plans_path = os.path.join(output_dir, "educational_video_plans.jsonl")
+    with open(plans_path, "w", encoding="utf-8") as f:
+        for record in TRAINING_DATA:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    print(f"[OK] Wrote {len(TRAINING_DATA)} records to {plans_path}")
+
+    # 2. Gemini Supervised Fine-Tuning Format: {"contents": [{"role": "user", "parts": [...]}, {"role": "model", "parts": [...]}]}
+    gemini_path = os.path.join(output_dir, "gemini_tuning_data.jsonl")
+    with open(gemini_path, "w", encoding="utf-8") as f:
+        for record in TRAINING_DATA:
+            user_msg = f"Plan an educationally accurate video for the topic: '{record['user_prompt']}'"
+            model_msg = json.dumps({
+                "title": record["topic"],
+                "content_type": record["content_type"],
+                "learning_objective": record["learning_objective"],
+                "presenter_required": record["presenter_required"],
+                "software_required": record["software_required"],
+                "mathematical_visualization_required": record["mathematical_visualization_required"],
+                "technical_visualization_required": record["technical_visualization_required"],
+                "required_visuals": record["required_visuals"],
+                "required_actions": record["required_actions"],
+                "prohibited_visual_behavior": record["prohibited_visual_behavior"],
+                "scenes": record["scene_sequence"]
+            }, indent=2)
+            
+            gemini_record = {
+                "contents": [
+                    {"role": "user", "parts": [{"text": user_msg}]},
+                    {"role": "model", "parts": [{"text": model_msg}]}
+                ]
+            }
+            f.write(json.dumps(gemini_record, ensure_ascii=False) + "\n")
+    print(f"[OK] Wrote Gemini tuning format to {gemini_path}")
+
+    # 3. OpenAI Fine-Tuning Format: {"messages": [{"role": "system", ...}, {"role": "user", ...}, {"role": "model", ...}]}
+    openai_path = os.path.join(output_dir, "openai_tuning_data.jsonl")
+    with open(openai_path, "w", encoding="utf-8") as f:
+        for record in TRAINING_DATA:
+            openai_record = {
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are the AI Educational Video Director. You plan educationally accurate instructional videos using realistic engineers, workstations, software/CAD screens, close-ups, dynamic mathematical visualizations, and action-based storyboards. Prohibit arbitrary cinematic metaphors."
+                    },
+                    {
+                        "role": "user",
+                        "content": record["user_prompt"]
+                    },
+                    {
+                        "role": "assistant",
+                        "content": json.dumps({
+                            "title": record["topic"],
+                            "content_type": record["content_type"],
+                            "learning_objective": record["learning_objective"],
+                            "presenter_required": record["presenter_required"],
+                            "software_required": record["software_required"],
+                            "mathematical_visualization_required": record["mathematical_visualization_required"],
+                            "technical_visualization_required": record["technical_visualization_required"],
+                            "required_visuals": record["required_visuals"],
+                            "required_actions": record["required_actions"],
+                            "prohibited_visual_behavior": record["prohibited_visual_behavior"],
+                            "scenes": record["scene_sequence"]
+                        }, indent=2)
+                    }
+                ]
+            }
+            f.write(json.dumps(openai_record, ensure_ascii=False) + "\n")
+    print(f"[OK] Wrote OpenAI tuning format to {openai_path}")
+
+
+if __name__ == "__main__":
+    generate_datasets()

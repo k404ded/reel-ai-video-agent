@@ -28,16 +28,16 @@ app.add_middleware(
 app.mount("/output", StaticFiles(directory=OUTPUT_DIR), name="output")
 
 STAGE_LABELS = {
-    "understanding": "Understanding your idea...",
-    "planning": "Planning cinematic scenes...",
-    "quality_check": "Refining director prompts...",
-    "scripting": "Writing narration script...",
-    "scenes": "Configuring scene composition...",
-    "visuals": "Generating high-quality visuals...",
-    "audio": "Synthesizing voiceover audio...",
-    "captions": "Generating lower-third captions...",
-    "rendering": "Assembling video with motion...",
-    "done": "Video complete!",
+    "understanding": "Classifying educational topic & routing requirements...",
+    "planning": "Director AI planning educational storyboard...",
+    "quality_check": "Educational Quality Control & metaphor validation...",
+    "scripting": "Synchronizing voiceover script & actions...",
+    "scenes": "Configuring technical shots & visual models...",
+    "visuals": "Generating authentic technical visuals & animations...",
+    "audio": "Synthesizing instructional narration...",
+    "captions": "Generating technical lower-third callouts...",
+    "rendering": "Assembling multi-track video with FFmpeg...",
+    "done": "Educational video complete!",
 }
 
 
@@ -102,18 +102,28 @@ def _serialize(result):
         "job_id": result.job_id,
         "title": result.title,
         "description": result.description,
-        "style": getattr(result, "style", "cinematic explainer"),
+        "content_type": getattr(result, "content_type", "GENERAL_EDUCATIONAL"),
+        "style": getattr(result, "style", "educational explainer"),
         "visual_direction": getattr(result, "visual_direction", ""),
         "shared_visual_anchor": getattr(result, "shared_visual_anchor", {}),
         "script": result.script,
         "scenes": result.scenes,
         "video_url": f"/output/{rel_video_path}",
+        "validation_passed": getattr(result, "validation_passed", True),
+        "validation_warnings": getattr(result, "validation_warnings", []),
+        "generation_backend_used": getattr(result, "generation_backend_used", "MULTI_DISPATCH_DIRECTOR"),
         "providers": {
             "llm_fallback": result.using_fallback_llm,
             "visual_fallback": result.using_fallback_visual,
             "tts_fallback": result.using_fallback_tts,
         },
     }
+
+
+# Mount built React frontend if available for production deployment
+frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
+if os.path.exists(frontend_dist):
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
 
 
 if __name__ == "__main__":

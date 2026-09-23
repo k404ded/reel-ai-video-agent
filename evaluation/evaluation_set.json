@@ -1,0 +1,82 @@
+[
+  {
+    "id": "eval_01",
+    "prompt": "Explain Gradient Descent",
+    "expected_content_type": "MATHEMATICAL_CONCEPT",
+    "required_visual_elements": ["loss surface", "gradient", "parameter", "minimum", "equation"],
+    "required_visual_types": ["mathematical_animation", "ai_presenter"],
+    "prohibited_metaphors": ["car", "road", "vehicle", "highway", "rollercoaster", "mountain landscape", "hiker", "rolling ball down hill"]
+  },
+  {
+    "id": "eval_02",
+    "prompt": "Explain a Neural Network",
+    "expected_content_type": "TECHNICAL_CONCEPT",
+    "required_visual_elements": ["weights", "input layer", "hidden layer", "activation", "output"],
+    "required_visual_types": ["technical_3d_animation", "mathematical_animation"],
+    "prohibited_metaphors": ["biological brain glowing", "galaxy", "magic portal", "lightning"]
+  },
+  {
+    "id": "eval_03",
+    "prompt": "Explain CNN",
+    "expected_content_type": "TECHNICAL_CONCEPT",
+    "required_visual_elements": ["kernel", "feature map", "convolution", "pooling"],
+    "required_visual_types": ["mathematical_animation", "technical_3d_animation"],
+    "prohibited_metaphors": ["matrix rain", "cars", "cartoon animals", "abstract light shows"]
+  },
+  {
+    "id": "eval_04",
+    "prompt": "Explain PID Controller",
+    "expected_content_type": "GENERAL_EDUCATIONAL",
+    "required_visual_elements": ["setpoint", "error", "proportional", "integral", "derivative", "oscilloscope"],
+    "required_visual_types": ["mathematical_animation", "technical_schematic", "ai_workstation_video"],
+    "prohibited_metaphors": ["car steering wheel in traffic", "thermostat cartoon", "balancing rocks"]
+  },
+  {
+    "id": "eval_05",
+    "prompt": "Explain CAN Bus Arbitration",
+    "expected_content_type": "AUTOMOTIVE_PROCESS",
+    "required_visual_elements": ["ecu", "differential", "voltage", "dominant", "recessive", "identifier"],
+    "required_visual_types": ["mathematical_animation", "technical_3d_animation", "ai_workstation_video"],
+    "prohibited_metaphors": ["traffic jam", "cars on highway", "police siren", "crash"]
+  },
+  {
+    "id": "eval_06",
+    "prompt": "Explain Command Finder in CATIA",
+    "expected_content_type": "CAD_TUTORIAL",
+    "required_visual_elements": ["catia", "workstation", "command", "search", "dialog", "cad model"],
+    "required_visual_types": ["software_demonstration", "screen_closeup", "ai_workstation_video"],
+    "prohibited_metaphors": ["spaceship cockpit", "magic wand", "business handshake", "spreadsheet"]
+  },
+  {
+    "id": "eval_07",
+    "prompt": "Explain how to create a sketch in CAD",
+    "expected_content_type": "CAD_TUTORIAL",
+    "required_visual_elements": ["sketch", "plane", "profile", "dimension", "constraint", "extrude"],
+    "required_visual_types": ["software_demonstration", "screen_closeup", "ai_workstation_video"],
+    "prohibited_metaphors": ["sketch artist pencil", "fantasy drawing pad", "magic wand"]
+  },
+  {
+    "id": "eval_08",
+    "prompt": "Explain EV Battery Management System",
+    "expected_content_type": "ENGINEERING_PROCESS",
+    "required_visual_elements": ["battery", "cells", "voltage", "balancing", "temperature", "bms"],
+    "required_visual_types": ["technical_3d_animation", "ai_workstation_video"],
+    "prohibited_metaphors": ["lightning bolts", "cartoon running batteries", "fireworks explosions"]
+  },
+  {
+    "id": "eval_09",
+    "prompt": "Explain regenerative braking",
+    "expected_content_type": "AUTOMOTIVE_PROCESS",
+    "required_visual_elements": ["motor", "generator", "kinetic energy", "battery", "inverter", "torque"],
+    "required_visual_types": ["technical_3d_animation", "ai_workstation_video"],
+    "prohibited_metaphors": ["cartoon pedal pushing", "magic glowing green leaves", "car jumping over cliff"]
+  },
+  {
+    "id": "eval_10",
+    "prompt": "Explain a manufacturing procedure",
+    "expected_content_type": "ENGINEERING_PROCESS",
+    "required_visual_elements": ["workstation", "tool", "work coordinate", "tolerance", "inspection", "cnc"],
+    "required_visual_types": ["ai_workstation_video", "software_demonstration", "technical_3d_animation"],
+    "prohibited_metaphors": ["fireworks", "action movie explosions", "cartoon sledgehammer"]
+  }
+]

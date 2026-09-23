@@ -1,0 +1,202 @@
+{
+  "average_score": 97.8,
+  "pass_rate": 100.0,
+  "results": [
+    {
+      "id": "eval_01",
+      "prompt": "Explain Gradient Descent",
+      "total_score": 100.0,
+      "status": "PASS",
+      "score_breakdown": {
+        "content_type_routing": 15,
+        "metaphor_absence": 30,
+        "technical_visual_elements": 25.0,
+        "visual_model_awareness": 15,
+        "action_specification": 15.0
+      },
+      "notes": [],
+      "scenes_count": 5,
+      "visual_types_used": [
+        "ai_presenter",
+        "mathematical_animation"
+      ]
+    },
+    {
+      "id": "eval_02",
+      "prompt": "Explain a Neural Network",
+      "total_score": 95.0,
+      "status": "PASS",
+      "score_breakdown": {
+        "content_type_routing": 15,
+        "metaphor_absence": 30,
+        "technical_visual_elements": 20.0,
+        "visual_model_awareness": 15,
+        "action_specification": 15.0
+      },
+      "notes": [],
+      "scenes_count": 5,
+      "visual_types_used": [
+        "ai_presenter",
+        "technical_3d_animation",
+        "mathematical_animation"
+      ]
+    },
+    {
+      "id": "eval_03",
+      "prompt": "Explain CNN",
+      "total_score": 100.0,
+      "status": "PASS",
+      "score_breakdown": {
+        "content_type_routing": 15,
+        "metaphor_absence": 30,
+        "technical_visual_elements": 25.0,
+        "visual_model_awareness": 15,
+        "action_specification": 15.0
+      },
+      "notes": [],
+      "scenes_count": 5,
+      "visual_types_used": [
+        "ai_presenter",
+        "technical_3d_animation",
+        "mathematical_animation"
+      ]
+    },
+    {
+      "id": "eval_04",
+      "prompt": "Explain PID Controller",
+      "total_score": 100.0,
+      "status": "PASS",
+      "score_breakdown": {
+        "content_type_routing": 15,
+        "metaphor_absence": 30,
+        "technical_visual_elements": 25.0,
+        "visual_model_awareness": 15,
+        "action_specification": 15.0
+      },
+      "notes": [],
+      "scenes_count": 5,
+      "visual_types_used": [
+        "ai_workstation_video",
+        "mathematical_animation"
+      ]
+    },
+    {
+      "id": "eval_05",
+      "prompt": "Explain CAN Bus Arbitration",
+      "total_score": 95.8,
+      "status": "PASS",
+      "score_breakdown": {
+        "content_type_routing": 15,
+        "metaphor_absence": 30,
+        "technical_visual_elements": 20.8,
+        "visual_model_awareness": 15,
+        "action_specification": 15.0
+      },
+      "notes": [],
+      "scenes_count": 5,
+      "visual_types_used": [
+        "technical_3d_animation",
+        "ai_workstation_video",
+        "mathematical_animation"
+      ]
+    },
+    {
+      "id": "eval_06",
+      "prompt": "Explain Command Finder in CATIA",
+      "total_score": 100.0,
+      "status": "PASS",
+      "score_breakdown": {
+        "content_type_routing": 15,
+        "metaphor_absence": 30,
+        "technical_visual_elements": 25.0,
+        "visual_model_awareness": 15,
+        "action_specification": 15.0
+      },
+      "notes": [],
+      "scenes_count": 5,
+      "visual_types_used": [
+        "screen_closeup",
+        "software_demonstration",
+        "ai_workstation_video"
+      ]
+    },
+    {
+      "id": "eval_07",
+      "prompt": "Explain how to create a sketch in CAD",
+      "total_score": 100.0,
+      "status": "PASS",
+      "score_breakdown": {
+        "content_type_routing": 15,
+        "metaphor_absence": 30,
+        "technical_visual_elements": 25.0,
+        "visual_model_awareness": 15,
+        "action_specification": 15.0
+      },
+      "notes": [],
+      "scenes_count": 5,
+      "visual_types_used": [
+        "screen_closeup",
+        "software_demonstration",
+        "ai_workstation_video"
+      ]
+    },
+    {
+      "id": "eval_08",
+      "prompt": "Explain EV Battery Management System",
+      "total_score": 95.8,
+      "status": "PASS",
+      "score_breakdown": {
+        "content_type_routing": 15,
+        "metaphor_absence": 30,
+        "technical_visual_elements": 20.8,
+        "visual_model_awareness": 15,
+        "action_specification": 15.0
+      },
+      "notes": [],
+      "scenes_count": 5,
+      "visual_types_used": [
+        "technical_3d_animation",
+        "ai_workstation_video"
+      ]
+    },
+    {
+      "id": "eval_09",
+      "prompt": "Explain regenerative braking",
+      "total_score": 91.7,
+      "status": "PASS",
+      "score_breakdown": {
+        "content_type_routing": 15,
+        "metaphor_absence": 30,
+        "technical_visual_elements": 16.7,
+        "visual_model_awareness": 15,
+        "action_specification": 15.0
+      },
+      "notes": [],
+      "scenes_count": 5,
+      "visual_types_used": [
+        "technical_3d_animation",
+        "ai_workstation_video"
+      ]
+    },
+    {
+      "id": "eval_10",
+      "prompt": "Explain a manufacturing procedure",
+      "total_score": 100.0,
+      "status": "PASS",
+      "score_breakdown": {
+        "content_type_routing": 15,
+        "metaphor_absence": 30,
+        "technical_visual_elements": 25.0,
+        "visual_model_awareness": 15,
+        "action_specification": 15.0
+      },
+      "notes": [],
+      "scenes_count": 5,
+      "visual_types_used": [
+        "software_demonstration",
+        "ai_workstation_video",
+        "technical_3d_animation"
+      ]
+    }
+  ]
+}
