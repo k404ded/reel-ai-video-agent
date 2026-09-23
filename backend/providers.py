@@ -29,6 +29,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")  # "Rachel" default
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+RUNWAYML_API_SECRET = os.getenv("RUNWAYML_API_SECRET")
 
 # Automatically detect if a Gemini key was set as ANTHROPIC_API_KEY
 if not GEMINI_API_KEY and ANTHROPIC_API_KEY and ANTHROPIC_API_KEY.startswith("AQ."):
@@ -47,6 +48,8 @@ try:
             OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
         if not ELEVENLABS_API_KEY and "ELEVENLABS_API_KEY" in st.secrets:
             ELEVENLABS_API_KEY = st.secrets["ELEVENLABS_API_KEY"]
+        if not RUNWAYML_API_SECRET and "RUNWAYML_API_SECRET" in st.secrets:
+            RUNWAYML_API_SECRET = st.secrets["RUNWAYML_API_SECRET"]
 except Exception:
     pass
 
@@ -620,3 +623,60 @@ class TTSProvider:
             check=True,
             capture_output=True,
         )
+
+
+# --------------------------------------------------------------------------
+# Runway Generative Video Provider
+# --------------------------------------------------------------------------
+
+class RunwayVideoProvider:
+    """
+    Runway Gen-4 / Gen-3 Alpha API Integration.
+    Generates genuine AI video clips with photorealistic motion and physics.
+    Gracefully falls back to the procedural engine if credits are exhausted.
+    """
+
+    def __init__(self, api_key: Optional[str] = None):
+        self.api_key = api_key or RUNWAYML_API_SECRET
+        self.client = None
+        if self.api_key:
+            try:
+                from runwayml import RunwayML
+                self.client = RunwayML(api_key=self.api_key)
+            except Exception as e:
+                print(f"[RunwayVideoProvider] Failed to initialize RunwayML client: {e}")
+
+    async def generate_clip(self, prompt: str, duration: int = 5, ratio: str = "1280:720", out_path: Optional[str] = None) -> Optional[str]:
+        if not self.client:
+            return None
+        try:
+            print(f"[RunwayVideoProvider] Submitting text_to_video task: '{prompt[:60]}...'")
+            task = self.client.text_to_video.create(
+                model="gen4.5",
+                prompt_text=prompt,
+                ratio=ratio,
+                duration=duration,
+            )
+            task_id = task.id
+            print(f"[RunwayVideoProvider] Task created: {task_id}. Polling for completion...")
+
+            for _ in range(60):
+                await asyncio.sleep(5)
+                status_task = self.client.tasks.retrieve(task_id)
+                if status_task.status == "SUCCEEDED":
+                    video_url = status_task.output[0] if status_task.output else None
+                    if video_url and out_path:
+                        async with httpx.AsyncClient(timeout=60) as client:
+                            resp = await client.get(video_url)
+                            resp.raise_for_status()
+                            with open(out_path, "wb") as f:
+                                f.write(resp.content)
+                        return out_path
+                    return video_url
+                elif status_task.status in ("FAILED", "CANCELLED"):
+                    print(f"[RunwayVideoProvider] Task {task_id} {status_task.status}: {getattr(status_task, 'failure', 'Unknown error')}")
+                    return None
+        except Exception as e:
+            print(f"[RunwayVideoProvider] Runway generation unavailable ({e}); using procedural engine.")
+            return None
+        return None
