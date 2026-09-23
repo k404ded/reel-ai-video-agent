@@ -107,7 +107,9 @@ class EducationalDirectorEngine:
         """
         return await self._plan_pipeline(user_prompt)
 
-    plan_video = plan_educational_video
+    async def plan_video(self, user_prompt: str) -> EducationalStoryboard:
+        """Alias for plan_educational_video for full provider backward compatibility."""
+        return await self._plan_pipeline(user_prompt)
 
     async def _plan_pipeline(self, user_prompt: str) -> EducationalStoryboard:
         # Step 1: Ontology & Content Routing

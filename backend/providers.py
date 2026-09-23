@@ -166,7 +166,12 @@ class LLMProvider:
         self.using_fallback = self.engine.using_fallback
 
     async def plan_video(self, user_prompt: str) -> dict:
-        storyboard = await self.engine.plan_video(user_prompt)
+        if hasattr(self.engine, "plan_video"):
+            storyboard = await self.engine.plan_video(user_prompt)
+        elif hasattr(self.engine, "plan_educational_video"):
+            storyboard = await self.engine.plan_educational_video(user_prompt)
+        else:
+            storyboard = await self.engine._plan_pipeline(user_prompt)
         self.using_fallback = self.engine.using_fallback
         plan = storyboard.to_dict()
 
